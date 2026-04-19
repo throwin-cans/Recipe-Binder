@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Recipe Binder — Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#2d5a3d" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #f0f7f2; font-family: 'Lato', sans-serif; -webkit-font-smoothing: antialiased; }
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); min-height: 100vh; }
+    button { -webkit-tap-highlight-color: transparent; font-family: inherit; }
+    .wrap { max-width: 540px; margin: 0 auto; padding: 28px 16px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; background: none; border: none; color: #2d5a3d; font-size: 13px; font-weight: 700; cursor: pointer; margin-bottom: 16px; padding: 0; text-decoration: none; }
+    .card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%); padding: 28px; color: white; }
+    .header .kicker { font-size: 10px; letter-spacing: 3px; color: #a8d5b5; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+    .header h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; margin: 0; }
+    .header p { color: #a8d5b5; margin: 6px 0 0; font-size: 13px; font-style: italic; }
+    .body { padding: 24px 28px; }
+    .label { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #2d5a3d; text-transform: uppercase; margin-bottom: 8px; }
+    input, textarea { width: 100%; border: 1.5px solid #c8e6d4; border-radius: 8px; padding: 11px 13px; font-family: inherit; font-size: 14px; background: #f4fbf6; color: #1a3d28; }
+    input:focus, textarea:focus { outline: none; border-color: #2d5a3d; background: white; }
+    textarea { font-family: 'SF Mono', Menlo, Monaco, monospace; font-size: 12px; min-height: 280px; resize: vertical; line-height: 1.5; }
+    .group { margin-bottom: 18px; }
+    .btn { width: 100%; padding: 13px; border-radius: 10px; background: #2d5a3d; border: none; color: white; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn.secondary { background: transparent; color: #2d5a3d; border: 1.5px solid #2d5a3d; }
+    .status { padding: 12px 16px; border-radius: 8px; margin-top: 14px; font-size: 13px; line-height: 1.5; }
+    .status.success { background: #e8f5ec; color: #1a3d28; border-left: 3px solid #2d5a3d; }
+    .status.error { background: #fdecec; color: #7a1a1a; border-left: 3px solid #b33; }
+    .status.info { background: #fff8e1; color: #5a4a1a; border-left: 3px solid #d4a017; }
+    .help { font-size: 12px; color: #789; line-height: 1.55; margin-top: 8px; }
+    .help code { background: #edf7f1; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #2d5a3d; }
+    .row { display: flex; gap: 8px; margin-top: 10px; }
+    .row .btn { flex: 1; padding: 10px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a href="index.html" class="back">← Back to Binder</a>
+    <div class="card">
+      <div class="header">
+        <div class="kicker">Admin</div>
+        <h1>Add Recipe</h1>
+        <p id="subtitle">Paste a recipe from Claude and save it to GitHub.</p>
+      </div>
+      <div class="body" id="body"></div>
+    </div>
+  </div>
+
+  <script>
+    // ──────────────────────────────────────────────
+    // CONFIG — must match your GitHub setup
+    // ──────────────────────────────────────────────
+    const CONFIG = {
+      // These get set on first use via the setup screen
+      // GitHub owner (your username)
+      owner: localStorage.getItem("rb_owner") || "",
+      // Repo name (e.g. "recipe-binder")
+      repo: localStorage.getItem("rb_repo") || "",
+      // Branch name — usually "main"
+      branch: localStorage.getItem("rb_branch") || "main",
+      // File path inside the repo
+      path: "recipes.json",
+      // Your PAT — stored locally only
+      token: sessionStorage.getItem("rb_token") || "",
+      // Password hash for the admin page
+      passwordHash: localStorage.getItem("rb_pw_hash") || "",
+    };
+
+    const body = document.getElementById("body");
+
+    // ──────────────────────────────────────────────
+    // Small helpers
+    // ──────────────────────────────────────────────
+    async function sha256(text) {
+      const buf = new TextEncoder().encode(text);
+      const hash = await crypto.subtle.digest("SHA-256", buf);
+      return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    function status(type, html) {
+      const s = document.createElement("div");
+      s.className = "status " + type;
+      s.innerHTML = html;
+      return s;
+    }
+
+    function el(tag, attrs = {}, ...children) {
+      const e = document.createElement(tag);
+      for (const k in attrs) {
+        if (k === "onClick") e.addEventListener("click", attrs[k]);
+        else if (k === "html") e.innerHTML = attrs[k];
+        else e.setAttribute(k, attrs[k]);
+      }
+      for (const c of children) {
+        if (typeof c === "string") e.appendChild(document.createTextNode(c));
+        else if (c) e.appendChild(c);
+      }
+      return e;
+    }
+
+    // Base64 utilities that handle unicode properly
+    function b64encode(str) {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+    function b64decode(b64) {
+      return decodeURIComponent(escape(atob(b64)));
+    }
+
+    // ──────────────────────────────────────────────
+    // Screens
+    // ──────────────────────────────────────────────
+
+    function renderSetup() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "First time? Let's get you set up.";
+
+      const ownerInput = el("input", { type: "text", placeholder: "your-github-username", value: CONFIG.owner });
+      const repoInput = el("input", { type: "text", placeholder: "recipe-binder", value: CONFIG.repo });
+      const branchInput = el("input", { type: "text", placeholder: "main", value: CONFIG.branch || "main" });
+      const pwInput = el("input", { type: "password", placeholder: "Create a password", autocomplete: "new-password" });
+      const pwConfirm = el("input", { type: "password", placeholder: "Confirm password", autocomplete: "new-password" });
+
+      const save = async () => {
+        if (!ownerInput.value.trim() || !repoInput.value.trim()) {
+          body.querySelector(".status")?.remove();
+          body.appendChild(status("error", "GitHub username and repo name are required."));
+          return;
+        }
+        if (pwInput.value.length < 4) {
+          body.querySelector(".status")?.remove();
+          body.appendChild(status("error", "Password must be at least 4 characters."));
+          return;
+        }
+        if (pwInput.value !== pwConfirm.value) {
+          body.querySelector(".status")?.remove();
+          body.appendChild(status("error", "Passwords don't match."));
+          return;
+        }
+        localStorage.setItem("rb_owner", ownerInput.value.trim());
+        localStorage.setItem("rb_repo", repoInput.value.trim());
+        localStorage.setItem("rb_branch", branchInput.value.trim() || "main");
+        localStorage.setItem("rb_pw_hash", await sha256(pwInput.value));
+        CONFIG.owner = ownerInput.value.trim();
+        CONFIG.repo = repoInput.value.trim();
+        CONFIG.branch = branchInput.value.trim() || "main";
+        CONFIG.passwordHash = localStorage.getItem("rb_pw_hash");
+        renderUnlock();
+      };
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "GitHub Username"),
+        ownerInput
+      ));
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Repository Name"),
+        repoInput
+      ));
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Branch (usually \"main\")"),
+        branchInput
+      ));
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Set Admin Password"),
+        pwInput,
+        el("div", { class: "help" }, "Used to unlock this page. Stored as a hash on this device only — never sent anywhere.")
+      ));
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Confirm Password"),
+        pwConfirm
+      ));
+
+      const btn = el("button", { class: "btn", onClick: save }, "Continue");
+      body.appendChild(btn);
+    }
+
+    function renderUnlock() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Enter your admin password.";
+
+      const pwInput = el("input", { type: "password", placeholder: "Password", autocomplete: "current-password" });
+      pwInput.addEventListener("keydown", e => { if (e.key === "Enter") btn.click(); });
+
+      const btn = el("button", { class: "btn", onClick: async () => {
+        const hash = await sha256(pwInput.value);
+        if (hash === CONFIG.passwordHash) {
+          if (CONFIG.token) {
+            renderMain();
+          } else {
+            renderTokenEntry();
+          }
+        } else {
+          body.querySelector(".status")?.remove();
+          body.appendChild(status("error", "Wrong password."));
+        }
+      } }, "Unlock");
+
+      const resetBtn = el("button", { class: "btn secondary", onClick: () => {
+        if (confirm("Reset all admin settings? You'll need to set everything up again.")) {
+          localStorage.clear();
+          sessionStorage.clear();
+          location.reload();
+        }
+      } }, "Reset Settings");
+
+      body.appendChild(el("div", { class: "group" }, pwInput));
+      body.appendChild(btn);
+      body.appendChild(el("div", { class: "row" }, resetBtn));
+
+      setTimeout(() => pwInput.focus(), 100);
+    }
+
+    function renderTokenEntry() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Paste your GitHub Personal Access Token.";
+
+      const tokenInput = el("input", { type: "password", placeholder: "ghp_... or github_pat_..." });
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Personal Access Token"),
+        tokenInput,
+        el("div", { class: "help" },
+          "Stored only for this session. Need one? See the README for step-by-step instructions. ",
+          el("strong", {}, "Scope: Contents = Read and write"),
+          " for your repo only."
+        )
+      ));
+
+      const btn = el("button", { class: "btn", onClick: async () => {
+        if (!tokenInput.value.trim()) return;
+        sessionStorage.setItem("rb_token", tokenInput.value.trim());
+        CONFIG.token = tokenInput.value.trim();
+        // Verify token works
+        body.querySelector(".status")?.remove();
+        const s = status("info", "Verifying token…");
+        body.appendChild(s);
+        try {
+          const r = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}`, {
+            headers: { Authorization: `Bearer ${CONFIG.token}` }
+          });
+          if (!r.ok) throw new Error(r.status === 401 ? "Token rejected (401). Check permissions." : `GitHub returned ${r.status}`);
+          renderMain();
+        } catch (err) {
+          s.className = "status error";
+          s.innerHTML = "Could not verify: " + err.message;
+        }
+      } }, "Continue");
+      body.appendChild(btn);
+    }
+
+    async function fetchRecipes() {
+      const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}?ref=${CONFIG.branch}`;
+      const r = await fetch(url, { headers: { Authorization: `Bearer ${CONFIG.token}` } });
+      if (!r.ok) throw new Error(`Could not fetch recipes.json (${r.status})`);
+      const data = await r.json();
+      const content = b64decode(data.content);
+      return { json: JSON.parse(content), sha: data.sha };
+    }
+
+    async function commitRecipes(updated, sha, message) {
+      const url = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`;
+      const body = {
+        message,
+        content: b64encode(JSON.stringify(updated, null, 2)),
+        sha,
+        branch: CONFIG.branch,
+      };
+      const r = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${CONFIG.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.message || `Commit failed (${r.status})`);
+      }
+      return r.json();
+    }
+
+    function renderMain() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = `${CONFIG.owner}/${CONFIG.repo} · ${CONFIG.branch}`;
+
+      const textarea = el("textarea", { placeholder: 'Paste the recipe JSON from Claude here. It should start with {"id": "..." and include all fields (emoji, tag, mealType, title, description, baseServings, ingredients, steps, notes).' });
+
+      const statusBox = el("div");
+
+      const addBtn = el("button", { class: "btn", onClick: async () => {
+        statusBox.innerHTML = "";
+        let newRecipe;
+        try {
+          newRecipe = JSON.parse(textarea.value.trim());
+        } catch (e) {
+          statusBox.appendChild(status("error", "Invalid JSON. Double-check the pasted text — it should start with <code>{</code> and end with <code>}</code>."));
+          return;
+        }
+
+        // Basic validation
+        const required = ["id", "emoji", "tag", "mealType", "title", "description", "baseServings", "ingredients", "steps"];
+        const missing = required.filter(f => !(f in newRecipe));
+        if (missing.length) {
+          statusBox.appendChild(status("error", "Recipe is missing required fields: " + missing.join(", ")));
+          return;
+        }
+        if (!["Dinner", "Sides", "Snacks"].includes(newRecipe.mealType)) {
+          statusBox.appendChild(status("error", `mealType must be "Dinner", "Sides", or "Snacks" — got "${newRecipe.mealType}".`));
+          return;
+        }
+
+        addBtn.disabled = true;
+        addBtn.textContent = "Saving…";
+        statusBox.appendChild(status("info", "Loading current recipes from GitHub…"));
+
+        try {
+          const { json, sha } = await fetchRecipes();
+
+          // Check for id collision
+          if (json.recipes.some(r => r.id === newRecipe.id)) {
+            // auto-rename to avoid conflict
+            let n = 1;
+            while (json.recipes.some(r => r.id === newRecipe.id + "_" + n)) n++;
+            newRecipe.id = newRecipe.id + "_" + n;
+          }
+
+          json.recipes.push(newRecipe);
+
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("info", "Committing to GitHub…"));
+
+          await commitRecipes(json, sha, `Add recipe: ${newRecipe.title}`);
+
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("success",
+            `<strong>✓ Saved!</strong><br>"${newRecipe.title}" was added. GitHub Pages will rebuild in ~1 minute. Force-close and reopen the app to see it.`
+          ));
+          textarea.value = "";
+        } catch (err) {
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("error", "Error: " + err.message));
+        } finally {
+          addBtn.disabled = false;
+          addBtn.textContent = "Save to GitHub";
+        }
+      } }, "Save to GitHub");
+
+      const logoutBtn = el("button", { class: "btn secondary", onClick: () => {
+        sessionStorage.removeItem("rb_token");
+        location.reload();
+      } }, "Lock");
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Recipe JSON"),
+        textarea,
+        el("div", { class: "help" }, "Paste the JSON Claude gave you, then tap Save. The app expects one recipe object (not an array).")
+      ));
+      body.appendChild(addBtn);
+      body.appendChild(statusBox);
+      body.appendChild(el("div", { class: "row" }, logoutBtn));
+    }
+
+    // Route to the right screen
+    if (!CONFIG.owner || !CONFIG.repo || !CONFIG.passwordHash) {
+      renderSetup();
+    } else {
+      renderUnlock();
+    }
+  </script>
+</body>
+</html>
