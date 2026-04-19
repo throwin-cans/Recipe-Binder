@@ -10,20 +10,80 @@
       "baseServings": 6,
       "totalMinutes": 30,
       "ingredients": [
-        { "id": "i1", "name": "long-grain white rice (basmati recommended)", "amount": 2, "unit": "cup" },
-        { "id": "i2", "name": "water or chicken broth (or half and half)", "amount": 4, "unit": "cup" },
-        { "id": "i3", "name": "butter or oil", "amount": 2, "unit": "tbsp" },
-        { "id": "i4", "name": "salt", "amount": 1, "unit": "tsp" },
-        { "id": "i5", "name": "fresh lime juice", "amount": 4, "unit": "tbsp" },
-        { "id": "i6", "name": "lime zest", "amount": 2, "unit": "tsp" },
-        { "id": "i7", "name": "fresh cilantro, finely chopped", "amount": 0.5, "unit": "cup" }
+        {
+          "id": "i1",
+          "name": "long-grain white rice (basmati recommended)",
+          "amount": 2,
+          "unit": "cup"
+        },
+        {
+          "id": "i2",
+          "name": "water or chicken broth (or half and half)",
+          "amount": 4,
+          "unit": "cup"
+        },
+        {
+          "id": "i3",
+          "name": "butter or oil",
+          "amount": 2,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i4",
+          "name": "salt",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i5",
+          "name": "fresh lime juice",
+          "amount": 4,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i6",
+          "name": "lime zest",
+          "amount": 2,
+          "unit": "tsp"
+        },
+        {
+          "id": "i7",
+          "name": "fresh cilantro, finely chopped",
+          "amount": 0.5,
+          "unit": "cup"
+        }
       ],
       "steps": [
-        { "id": "s1", "title": "Rinse the rice", "content": "Rinse rice under cold water until the water runs mostly clear. This removes excess starch for fluffier rice.", "timer": null },
-        { "id": "s2", "title": "Toast the rice", "content": "In a saucepan over medium heat, melt butter or oil. Add rice and toast for 2–3 minutes, stirring, until lightly golden and fragrant.", "timer": 180 },
-        { "id": "s3", "title": "Cook the rice", "content": "Add water/broth and salt. Bring to a boil, then reduce heat to low. Cover and simmer for 18 minutes without lifting the lid.", "timer": 1080 },
-        { "id": "s4", "title": "Steam", "content": "Remove from heat and let steam, covered, for 5 minutes.", "timer": 300 },
-        { "id": "s5", "title": "Season and serve", "content": "Fluff with a fork, then stir in lime juice, lime zest, and chopped cilantro. Taste and adjust salt or lime as needed.", "timer": null }
+        {
+          "id": "s1",
+          "title": "Rinse the rice",
+          "content": "Rinse rice under cold water until the water runs mostly clear. This removes excess starch for fluffier rice.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Toast the rice",
+          "content": "In a saucepan over medium heat, melt butter or oil. Add rice and toast for 2–3 minutes, stirring, until lightly golden and fragrant.",
+          "timer": 180
+        },
+        {
+          "id": "s3",
+          "title": "Cook the rice",
+          "content": "Add water/broth and salt. Bring to a boil, then reduce heat to low. Cover and simmer for 18 minutes without lifting the lid.",
+          "timer": 1080
+        },
+        {
+          "id": "s4",
+          "title": "Steam",
+          "content": "Remove from heat and let steam, covered, for 5 minutes.",
+          "timer": 300
+        },
+        {
+          "id": "s5",
+          "title": "Season and serve",
+          "content": "Fluff with a fork, then stir in lime juice, lime zest, and chopped cilantro. Taste and adjust salt or lime as needed.",
+          "timer": null
+        }
       ],
       "notes": "Use half broth, half water for a richer savory flavor. Add cilantro while rice is still warm so it wilts slightly and the flavor blooms."
     },
@@ -37,21 +97,86 @@
       "baseServings": 4,
       "totalMinutes": 50,
       "ingredients": [
-        { "id": "i1", "name": "cans of garbanzo beans (15 oz each), drained and rinsed", "amount": 2, "unit": null },
-        { "id": "i2", "name": "olive oil", "amount": 2, "unit": "tbsp" },
-        { "id": "i3", "name": "salt", "amount": 0.75, "unit": "tsp" },
-        { "id": "i4", "name": "garlic powder", "amount": 0.5, "unit": "tsp" },
-        { "id": "i5", "name": "smoked paprika", "amount": 0.5, "unit": "tsp" },
-        { "id": "i6", "name": "cumin", "amount": 0.25, "unit": "tsp" },
-        { "id": "i7", "name": "black pepper", "amount": 0.25, "unit": "tsp" },
-        { "id": "i8", "name": "cayenne pepper (optional)", "amount": 0.125, "unit": "tsp" }
+        {
+          "id": "i1",
+          "name": "cans of garbanzo beans (15 oz each), drained and rinsed",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "olive oil",
+          "amount": 2,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i3",
+          "name": "salt",
+          "amount": 0.75,
+          "unit": "tsp"
+        },
+        {
+          "id": "i4",
+          "name": "garlic powder",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i5",
+          "name": "smoked paprika",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i6",
+          "name": "cumin",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i7",
+          "name": "black pepper",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i8",
+          "name": "cayenne pepper (optional)",
+          "amount": 0.125,
+          "unit": "tsp"
+        }
       ],
       "steps": [
-        { "id": "s1", "title": "Preheat oven", "content": "Preheat your oven to 400°F (200°C). Line a baking sheet with parchment paper.", "timer": null },
-        { "id": "s2", "title": "Dry the beans", "content": "Spread the drained and rinsed beans on a clean towel. Pat completely dry — moisture is the enemy of crispiness. Let sit 10 minutes if you can.", "timer": 600 },
-        { "id": "s3", "title": "Season", "content": "Toss the dried beans with olive oil, salt, garlic powder, smoked paprika, cumin, black pepper, and cayenne if using.", "timer": null },
-        { "id": "s4", "title": "Roast", "content": "Spread in a single layer on the baking sheet — don't crowd them. Roast for 25–30 minutes, shaking the pan halfway through, until deeply golden and crispy.", "timer": 1800 },
-        { "id": "s5", "title": "Cool and serve", "content": "Let them cool on the pan for 5–10 minutes — they crisp up further as they cool.", "timer": 600 }
+        {
+          "id": "s1",
+          "title": "Preheat oven",
+          "content": "Preheat your oven to 400°F (200°C). Line a baking sheet with parchment paper.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Dry the beans",
+          "content": "Spread the drained and rinsed beans on a clean towel. Pat completely dry — moisture is the enemy of crispiness. Let sit 10 minutes if you can.",
+          "timer": 600
+        },
+        {
+          "id": "s3",
+          "title": "Season",
+          "content": "Toss the dried beans with olive oil, salt, garlic powder, smoked paprika, cumin, black pepper, and cayenne if using.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Roast",
+          "content": "Spread in a single layer on the baking sheet — don't crowd them. Roast for 25–30 minutes, shaking the pan halfway through, until deeply golden and crispy.",
+          "timer": 1800
+        },
+        {
+          "id": "s5",
+          "title": "Cool and serve",
+          "content": "Let them cool on the pan for 5–10 minutes — they crisp up further as they cool.",
+          "timer": 600
+        }
       ],
       "notes": "Drying the beans thoroughly is the #1 key to crispiness — don't skip it. Best eaten within a few hours; they soften overnight."
     },
@@ -65,22 +190,169 @@
       "baseServings": 2,
       "totalMinutes": 35,
       "ingredients": [
-        { "id": "i1", "name": "boneless skinless chicken breasts (or thighs)", "amount": 2, "unit": null },
-        { "id": "i2", "name": "smoked paprika", "amount": 1.5, "unit": "tsp" },
-        { "id": "i3", "name": "kosher salt", "amount": 1, "unit": "tsp" },
-        { "id": "i4", "name": "black pepper, coarsely ground", "amount": 0.5, "unit": "tsp" },
-        { "id": "i5", "name": "garlic powder", "amount": 0.5, "unit": "tsp" },
-        { "id": "i6", "name": "neutral oil, high smoke point (avocado or grapeseed) — no butter", "amount": 2, "unit": "tbsp" }
+        {
+          "id": "i1",
+          "name": "boneless skinless chicken breasts (or thighs)",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "smoked paprika",
+          "amount": 1.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i3",
+          "name": "kosher salt",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i4",
+          "name": "black pepper, coarsely ground",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i5",
+          "name": "garlic powder",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i6",
+          "name": "neutral oil, high smoke point (avocado or grapeseed) — no butter",
+          "amount": 2,
+          "unit": "tbsp"
+        }
       ],
       "steps": [
-        { "id": "s1", "title": "Dry & pound", "content": "Pat chicken completely dry with paper towels — this is critical for a hard crust. If breasts are thick (>1 inch), pound to even thickness between plastic wrap so they cook evenly.", "timer": null },
-        { "id": "s2", "title": "Season", "content": "Mix smoked paprika, kosher salt, black pepper, and garlic powder. Coat both sides generously. Let the chicken sit at room temp for 15 minutes — don't skip this.", "timer": 900 },
-        { "id": "s3", "title": "Rip-hot pan", "content": "Heat your HexClad pan dry over high for 2.5–3 minutes — the hybrid surface needs longer than cast iron to get evenly rip-hot. Then add oil and heat another 30–60 seconds until it just begins to smoke. You want it seriously hot before the chicken goes in.", "timer": 180 },
-        { "id": "s4", "title": "First sear — don't touch", "content": "Lay chicken away from you into the pan. Press down firmly with a spatula for 10 seconds. DO NOT move it. Let it sear undisturbed until it releases easily and has a deep brown-to-char crust, about 4–5 min.", "timer": 300 },
-        { "id": "s5", "title": "Flip & finish", "content": "Flip once. Reduce heat to medium-high. Cook until internal temp hits 165°F (74°C), about 3–4 more minutes. Skip butter basting — it'll burn at this heat in a HexClad. Thighs can go slightly higher than 165°F — they benefit from it.", "timer": 240 },
-        { "id": "s6", "title": "Rest", "content": "Transfer to a cutting board and rest for 5 minutes, loosely tented. Do not cut early — this locks in all the juice.", "timer": 300 }
+        {
+          "id": "s1",
+          "title": "Dry & pound",
+          "content": "Pat chicken completely dry with paper towels — this is critical for a hard crust. If breasts are thick (>1 inch), pound to even thickness between plastic wrap so they cook evenly.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Season",
+          "content": "Mix smoked paprika, kosher salt, black pepper, and garlic powder. Coat both sides generously. Let the chicken sit at room temp for 15 minutes — don't skip this.",
+          "timer": 900
+        },
+        {
+          "id": "s3",
+          "title": "Rip-hot pan",
+          "content": "Heat your HexClad pan dry over high for 2.5–3 minutes — the hybrid surface needs longer than cast iron to get evenly rip-hot. Then add oil and heat another 30–60 seconds until it just begins to smoke. You want it seriously hot before the chicken goes in.",
+          "timer": 180
+        },
+        {
+          "id": "s4",
+          "title": "First sear — don't touch",
+          "content": "Lay chicken away from you into the pan. Press down firmly with a spatula for 10 seconds. DO NOT move it. Let it sear undisturbed until it releases easily and has a deep brown-to-char crust, about 4–5 min.",
+          "timer": 300
+        },
+        {
+          "id": "s5",
+          "title": "Flip & finish",
+          "content": "Flip once. Reduce heat to medium-high. Cook until internal temp hits 165°F (74°C), about 3–4 more minutes. Skip butter basting — it'll burn at this heat in a HexClad. Thighs can go slightly higher than 165°F — they benefit from it.",
+          "timer": 240
+        },
+        {
+          "id": "s6",
+          "title": "Rest",
+          "content": "Transfer to a cutting board and rest for 5 minutes, loosely tented. Do not cut early — this locks in all the juice.",
+          "timer": 300
+        }
       ],
       "notes": "HexClad's hybrid surface handles high heat well and gives a solid sear — just preheat longer than you'd expect (2.5–3 min dry before oil). Skip butter basting; it burns at searing temps. You won't get quite the same char depth as cast iron, but the paprika will still do its thing. Use avocado or grapeseed oil only — high smoke point is essential here."
+    },
+    {
+      "id": "r4",
+      "emoji": "🥑",
+      "tag": "Snack / Light Meal",
+      "mealType": "Snacks",
+      "title": "Elevated Avocado Toast",
+      "description": "Crispy sourdough, creamy avocado, lemony brightness, and a little heat.",
+      "baseServings": 2,
+      "totalMinutes": 15,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "sourdough bread, thick-cut",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "ripe avocado",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i3",
+          "name": "fresh lemon juice",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i4",
+          "name": "flaky sea salt",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i5",
+          "name": "red pepper flakes",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i6",
+          "name": "black pepper, coarsely ground",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i7",
+          "name": "extra virgin olive oil, for drizzling",
+          "amount": 2,
+          "unit": "tsp"
+        },
+        {
+          "id": "i8",
+          "name": "everything bagel seasoning (optional)",
+          "amount": 1,
+          "unit": "tsp"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Toast the bread",
+          "content": "Toast sourdough slices until deeply golden and crispy on the outside — you want real structure to hold the avocado without going soggy. A dark toast makes all the difference.",
+          "timer": 240
+        },
+        {
+          "id": "s2",
+          "title": "Prep the avocado",
+          "content": "Halve the avocado, remove the pit, and scoop the flesh into a small bowl. Add lemon juice and half the salt. Mash with a fork — leave it chunky, not puréed. Texture is the whole point.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Assemble",
+          "content": "Spread the mashed avocado generously over the warm toast. Press down lightly so it grips into the nooks of the bread.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Finish",
+          "content": "Drizzle with olive oil. Top with remaining flaky salt, red pepper flakes, black pepper, and everything bagel seasoning if using. Eat immediately — avocado toast waits for no one.",
+          "timer": null
+        }
+      ],
+      "notes": "The avocado needs to be genuinely ripe — it should yield to gentle pressure but not feel mushy. Unripe avocado is the #1 reason avo toast is disappointing. For extra credit: top with a soft-boiled egg, crumbled feta, or microgreens."
     }
   ]
 }
