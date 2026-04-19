@@ -1,4 +1,4 @@
-const CACHE_NAME = "recipe-binder-v2";
+const CACHE_NAME = "recipe-binder-v3";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -36,12 +36,10 @@ self.addEventListener("fetch", event => {
 
   const url = new URL(event.request.url);
 
-  // NEVER cache the GitHub API or recipes.json — always fetch fresh
-  // This is critical: when you add a recipe, you want to see it immediately
+  // Never cache GitHub API or recipes.json — always fetch fresh when online
   if (url.hostname === "api.github.com" || url.pathname.endsWith("recipes.json")) {
     event.respondWith(
       fetch(event.request).catch(() => {
-        // On offline, fall back to cache for recipes.json only
         if (url.pathname.endsWith("recipes.json")) {
           return caches.match(event.request);
         }
@@ -64,6 +62,3 @@ self.addEventListener("fetch", event => {
     })
   );
 });
-
-// When we want to cache the latest recipes.json proactively, we can do it here.
-// For now, network-first means you always get the latest when online.

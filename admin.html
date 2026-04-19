@@ -308,10 +308,14 @@
         }
 
         // Basic validation
-        const required = ["id", "emoji", "tag", "mealType", "title", "description", "baseServings", "ingredients", "steps"];
+        const required = ["id", "emoji", "tag", "mealType", "title", "description", "baseServings", "totalMinutes", "ingredients", "steps"];
         const missing = required.filter(f => !(f in newRecipe));
         if (missing.length) {
           statusBox.appendChild(status("error", "Recipe is missing required fields: " + missing.join(", ")));
+          return;
+        }
+        if (typeof newRecipe.totalMinutes !== "number" || newRecipe.totalMinutes < 1) {
+          statusBox.appendChild(status("error", "totalMinutes must be a positive number (total cook time in minutes)."));
           return;
         }
         if (!["Dinner", "Sides", "Snacks"].includes(newRecipe.mealType)) {

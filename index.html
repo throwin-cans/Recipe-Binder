@@ -26,7 +26,9 @@
     body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
     button { -webkit-tap-highlight-color: transparent; }
+    input { -webkit-appearance: none; appearance: none; }
   </style>
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -37,9 +39,15 @@
   <div id="root"></div>
 
   <script type="text/babel" data-presets="react">
-    const { useState, useRef, useEffect } = React;
+    const { useState, useRef, useEffect, useMemo } = React;
 
     const MEAL_ORDER = ["Dinner", "Sides", "Snacks"];
+    const TIME_BUCKETS = [
+      { id: "all", label: "Any time" },
+      { id: "quick", label: "≤ 30 min", max: 30 },
+      { id: "medium", label: "30–60 min", min: 30, max: 60 },
+      { id: "long", label: "60+ min", min: 60 },
+    ];
 
     function formatAmount(amount, multiplier) {
       const val = amount * multiplier;
@@ -57,6 +65,12 @@
       if (s < 60) return `${s}s`;
       const m = Math.floor(s / 60), r = s % 60;
       return r > 0 ? `${m}m ${r}s` : `${m}m`;
+    }
+
+    function getTotalMinutes(recipe) {
+      if (typeof recipe.totalMinutes === "number") return recipe.totalMinutes;
+      const totalSec = (recipe.steps || []).reduce((a, s) => a + (s.timer || 0), 0);
+      return Math.max(15, Math.ceil(totalSec / 60));
     }
 
     function TimerWidget({ seconds }) {
@@ -131,7 +145,7 @@
   .notes{background:#f2faf5;border-left:3px solid #2d5a3d;padding:12px 16px;margin-top:18px;font-size:13px;line-height:1.6}
 </style></head><body>
 <h1>${recipe.emoji} ${recipe.title}</h1>
-<p class="meta">Servings: ${servings} &nbsp;·&nbsp; ${recipe.tag}</p>
+<p class="meta">Servings: ${servings} &nbsp;·&nbsp; ${recipe.tag} &nbsp;·&nbsp; ~${getTotalMinutes(recipe)} min</p>
 <hr>
 <h2>Ingredients</h2>
 ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span class="amt">${formatAmount(i.amount, mult)}${i.unit ? " " + i.unit : ""}</span></div>`).join("")}
@@ -153,7 +167,10 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
           </button>
           <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
             <div style={{ background: "linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%)", padding: "28px 28px 24px" }}>
-              <div style={{ fontSize: 10, letterSpacing: 3, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 8 }}>{recipe.tag}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
+                <div style={{ fontSize: 10, letterSpacing: 3, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase" }}>{recipe.tag}</div>
+                <div style={{ fontSize: 10, letterSpacing: 2, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800 }}>~{getTotalMinutes(recipe)} MIN</div>
+              </div>
               <div style={{ fontSize: 36, marginBottom: 6 }}>{recipe.emoji}</div>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "white", margin: 0, fontFamily: "'Playfair Display', serif" }}>{recipe.title}</h2>
               <p style={{ color: "#a8d5b5", marginTop: 6, fontSize: 13, fontStyle: "italic", fontFamily: "sans-serif" }}>{recipe.description}</p>
@@ -208,16 +225,20 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       );
     }
 
-    function RecipeCard({ recipe, onClick }) {
+    function RecipeListCard({ recipe, onClick }) {
       return (
         <div onClick={onClick}
           style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s" }}
         >
           <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 30, lineHeight: 1 }}>{recipe.emoji}</span>
-            <div>
+            <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 9, letterSpacing: 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 3 }}>{recipe.tag}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif" }}>{recipe.title}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif", lineHeight: 1.2 }}>{recipe.title}</div>
+            </div>
+            <div style={{ textAlign: "right", flexShrink: 0 }}>
+              <div style={{ fontFamily: "sans-serif", fontSize: 9, color: "#a8d5b5", fontWeight: 800, letterSpacing: 1.5 }}>TIME</div>
+              <div style={{ fontFamily: "sans-serif", fontSize: 14, color: "white", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
             </div>
           </div>
           <div style={{ padding: "12px 18px 14px" }}>
@@ -231,84 +252,306 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       );
     }
 
+    function RecipeGridCard({ recipe, onClick }) {
+      return (
+        <div onClick={onClick}
+          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", flexDirection: "column" }}
+        >
+          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 10px 14px", textAlign: "center", position: "relative" }}>
+            <div style={{ position: "absolute", top: 7, right: 9, fontFamily: "sans-serif", fontSize: 10, color: "#a8d5b5", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
+            <div style={{ fontSize: 34, lineHeight: 1, marginBottom: 4 }}>{recipe.emoji}</div>
+            <div style={{ fontSize: 8, letterSpacing: 2, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase" }}>{recipe.tag}</div>
+          </div>
+          <div style={{ padding: "10px 12px 12px", flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", lineHeight: 1.25, marginBottom: 4 }}>{recipe.title}</div>
+            <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#999", marginTop: "auto" }}>{recipe.ingredients.length} ingredients</div>
+          </div>
+        </div>
+      );
+    }
+
+    function SearchBar({ value, onChange }) {
+      return (
+        <div style={{ position: "relative", marginBottom: 10 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+            <circle cx="10" cy="10" r="7" fill="none" stroke="#5a8a6a" strokeWidth="2" />
+            <line x1="15" y1="15" x2="21" y2="21" stroke="#5a8a6a" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Search recipes, ingredients, steps…"
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            style={{
+              width: "100%", padding: "11px 38px 11px 36px",
+              border: "1.5px solid #c8e6d4", borderRadius: 10,
+              background: "white", fontSize: 14, fontFamily: "'Lato', sans-serif",
+              color: "#1a3d28", outline: "none"
+            }}
+          />
+          {value && (
+            <button
+              onClick={() => onChange("")}
+              style={{
+                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                background: "#c8e6d4", border: "none", borderRadius: "50%",
+                width: 22, height: 22, color: "#2d5a3d",
+                cursor: "pointer", fontSize: 12, fontWeight: 700,
+                display: "flex", alignItems: "center", justifyContent: "center"
+              }}
+              aria-label="Clear search"
+            >×</button>
+          )}
+        </div>
+      );
+    }
+
+    function Chip({ label, active, onClick }) {
+      return (
+        <button
+          onClick={onClick}
+          style={{
+            padding: "6px 12px", borderRadius: 20,
+            border: active ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
+            background: active ? "#2d5a3d" : "white",
+            color: active ? "white" : "#2d5a3d",
+            fontSize: 12, fontWeight: 700, cursor: "pointer",
+            fontFamily: "'Lato', sans-serif",
+            whiteSpace: "nowrap",
+            transition: "all 0.15s"
+          }}
+        >{label}</button>
+      );
+    }
+
+    function FilterRow({ label, options, value, onChange }) {
+      return (
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 6 }}>{label}</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {options.map(opt => (
+              <Chip key={opt.id} label={opt.label} active={value === opt.id} onClick={() => onChange(opt.id)} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function ControlsBar({ search, onSearch, mealFilter, onMealFilter, timeFilter, onTimeFilter, view, onViewChange, showFilters, onToggleFilters, activeFilterCount }) {
+      return (
+        <div style={{ background: "white", borderRadius: 14, padding: "14px 14px 10px", marginBottom: 18, boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
+          <SearchBar value={search} onChange={onSearch} />
+
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button
+              onClick={onToggleFilters}
+              style={{
+                flex: 1, padding: "9px 12px", borderRadius: 9,
+                border: showFilters ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
+                background: showFilters ? "#f4fbf6" : "white",
+                color: "#2d5a3d", fontSize: 12, fontWeight: 800,
+                cursor: "pointer", fontFamily: "'Lato', sans-serif",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                letterSpacing: 0.5
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M6 12h12M10 18h4" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
+              FILTERS
+              {activeFilterCount > 0 && (
+                <span style={{ background: "#2d5a3d", color: "white", fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10, minWidth: 16, textAlign: "center" }}>{activeFilterCount}</span>
+              )}
+            </button>
+
+            <a href="admin.html" style={{ textDecoration: "none", flex: 1 }}>
+              <button
+                style={{
+                  width: "100%", padding: "9px 12px", borderRadius: 9,
+                  border: "none", background: "#2d5a3d", color: "white",
+                  fontSize: 12, fontWeight: 800, cursor: "pointer",
+                  fontFamily: "'Lato', sans-serif", letterSpacing: 0.5,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                }}
+              >
+                <span style={{ fontSize: 16, lineHeight: 0, marginTop: -2 }}>+</span> ADD
+              </button>
+            </a>
+
+            <div style={{ display: "flex", border: "1.5px solid #c8e6d4", borderRadius: 9, overflow: "hidden", background: "white" }}>
+              <button
+                onClick={() => onViewChange("list")}
+                aria-label="List view"
+                style={{ padding: "8px 10px", border: "none", background: view === "list" ? "#2d5a3d" : "white", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="5" width="18" height="3" rx="1" fill={view === "list" ? "white" : "#2d5a3d"} />
+                  <rect x="3" y="10.5" width="18" height="3" rx="1" fill={view === "list" ? "white" : "#2d5a3d"} />
+                  <rect x="3" y="16" width="18" height="3" rx="1" fill={view === "list" ? "white" : "#2d5a3d"} />
+                </svg>
+              </button>
+              <button
+                onClick={() => onViewChange("grid")}
+                aria-label="Grid view"
+                style={{ padding: "8px 10px", border: "none", background: view === "grid" ? "#2d5a3d" : "white", cursor: "pointer", borderLeft: "1.5px solid #c8e6d4", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="8" height="8" rx="1.5" fill={view === "grid" ? "white" : "#2d5a3d"} />
+                  <rect x="13" y="3" width="8" height="8" rx="1.5" fill={view === "grid" ? "white" : "#2d5a3d"} />
+                  <rect x="3" y="13" width="8" height="8" rx="1.5" fill={view === "grid" ? "white" : "#2d5a3d"} />
+                  <rect x="13" y="13" width="8" height="8" rx="1.5" fill={view === "grid" ? "white" : "#2d5a3d"} />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {showFilters && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid #edf7f1", animation: "slideDown 0.18s ease" }}>
+              <FilterRow
+                label="Meal Type"
+                options={[{ id: "all", label: "All" }, ...MEAL_ORDER.map(m => ({ id: m, label: m }))]}
+                value={mealFilter}
+                onChange={onMealFilter}
+              />
+              <FilterRow
+                label="Total Time"
+                options={TIME_BUCKETS}
+                value={timeFilter}
+                onChange={onTimeFilter}
+              />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function matchesSearch(recipe, query) {
+      if (!query) return true;
+      const q = query.toLowerCase();
+      if (recipe.title?.toLowerCase().includes(q)) return true;
+      if (recipe.description?.toLowerCase().includes(q)) return true;
+      if (recipe.tag?.toLowerCase().includes(q)) return true;
+      if ((recipe.ingredients || []).some(i => i.name?.toLowerCase().includes(q))) return true;
+      if ((recipe.steps || []).some(s =>
+        s.title?.toLowerCase().includes(q) || s.content?.toLowerCase().includes(q)
+      )) return true;
+      if (recipe.notes?.toLowerCase().includes(q)) return true;
+      return false;
+    }
+
+    function matchesTimeBucket(recipe, bucketId) {
+      if (bucketId === "all") return true;
+      const bucket = TIME_BUCKETS.find(b => b.id === bucketId);
+      if (!bucket) return true;
+      const t = getTotalMinutes(recipe);
+      if (bucket.min !== undefined && t < bucket.min) return false;
+      if (bucket.max !== undefined && t > bucket.max) return false;
+      return true;
+    }
+
     function RecipeBinder() {
       const [active, setActive] = useState(null);
       const [recipes, setRecipes] = useState([]);
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
 
+      const [search, setSearch] = useState("");
+      const [mealFilter, setMealFilter] = useState(() => localStorage.getItem("rb_meal") || "all");
+      const [timeFilter, setTimeFilter] = useState(() => localStorage.getItem("rb_time") || "all");
+      const [view, setView] = useState(() => localStorage.getItem("rb_view") || "list");
+      const [showFilters, setShowFilters] = useState(false);
+
+      useEffect(() => { localStorage.setItem("rb_meal", mealFilter); }, [mealFilter]);
+      useEffect(() => { localStorage.setItem("rb_time", timeFilter); }, [timeFilter]);
+      useEffect(() => { localStorage.setItem("rb_view", view); }, [view]);
+
       useEffect(() => {
-        // Cache-bust so updates show up right away
         fetch("recipes.json?t=" + Date.now())
-          .then(r => {
-            if (!r.ok) throw new Error("Failed to load recipes");
-            return r.json();
-          })
-          .then(data => {
-            setRecipes(data.recipes || []);
-            setLoading(false);
-          })
-          .catch(err => {
-            setError(err.message);
-            setLoading(false);
-          });
+          .then(r => { if (!r.ok) throw new Error("Failed to load recipes"); return r.json(); })
+          .then(data => { setRecipes(data.recipes || []); setLoading(false); })
+          .catch(err => { setError(err.message); setLoading(false); });
       }, []);
 
-      const grouped = MEAL_ORDER.reduce((acc, type) => {
-        const filtered = recipes.filter(r => r.mealType === type);
-        if (filtered.length) acc[type] = filtered;
-        return acc;
-      }, {});
+      const activeFilterCount =
+        (mealFilter !== "all" ? 1 : 0) + (timeFilter !== "all" ? 1 : 0);
+
+      const filtered = useMemo(() => {
+        return recipes.filter(r =>
+          matchesSearch(r, search) &&
+          (mealFilter === "all" || r.mealType === mealFilter) &&
+          matchesTimeBucket(r, timeFilter)
+        );
+      }, [recipes, search, mealFilter, timeFilter]);
+
+      const grouped = useMemo(() => {
+        return MEAL_ORDER.reduce((acc, type) => {
+          const list = filtered.filter(r => r.mealType === type);
+          if (list.length) acc[type] = list;
+          return acc;
+        }, {});
+      }, [filtered]);
 
       if (loading) {
-        return (
-          <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Lato', sans-serif", color: "#5a8a6a" }}>
-            Loading recipes…
-          </div>
-        );
+        return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Lato', sans-serif", color: "#5a8a6a" }}>Loading recipes…</div>;
       }
-
       if (error) {
-        return (
-          <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Lato', sans-serif", color: "#b33", padding: 20, textAlign: "center" }}>
-            Could not load recipes: {error}
-          </div>
-        );
+        return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Lato', sans-serif", color: "#b33", padding: 20, textAlign: "center" }}>Could not load recipes: {error}</div>;
       }
 
       return (
-        <div style={{ minHeight: "100vh", background: "#f0f7f2", padding: "28px 16px", fontFamily: "'Lato', sans-serif" }}>
+        <div style={{ minHeight: "100vh", background: "#f0f7f2", padding: "24px 14px", fontFamily: "'Lato', sans-serif" }}>
           <div style={{ maxWidth: 540, margin: "0 auto" }}>
             {!active ? (
               <React.Fragment>
-                <div style={{ marginBottom: 28, animation: "fadeUp 0.3s ease" }}>
-                  <div style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 800, letterSpacing: 3, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 6 }}>My</div>
-                  <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", margin: 0 }}>Recipe Binder</h1>
-                  <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginTop: 6 }}>{recipes.length} recipes saved</p>
-                </div>
-
-                {Object.entries(grouped).map(([type, list], gi) => (
-                  <div key={type} style={{ marginBottom: 28, animation: `fadeUp ${0.35 + gi * 0.08}s ease` }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                      <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 3, color: "#2d5a3d", textTransform: "uppercase" }}>{type}</div>
-                      <div style={{ flex: 1, height: 1, background: "#c8e6d4" }} />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      {list.map(r => (
-                        <RecipeCard key={r.id} recipe={r} onClick={() => setActive(r)} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-
-                <div style={{ marginTop: 8, padding: "16px 20px", background: "white", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", animation: "fadeUp 0.6s ease" }}>
-                  <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#888", margin: 0, marginBottom: 10 }}>
-                    <strong style={{ color: "#2d5a3d" }}>Tip:</strong> Ask Claude for a new recipe, then paste the JSON into the admin page below.
+                <div style={{ marginBottom: 18, animation: "fadeUp 0.3s ease" }}>
+                  <div style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 800, letterSpacing: 3, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 4 }}>My</div>
+                  <h1 style={{ fontSize: 30, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", margin: 0 }}>Recipe Binder</h1>
+                  <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#789", marginTop: 4 }}>
+                    {filtered.length} of {recipes.length} recipes {search || activeFilterCount > 0 ? "shown" : "saved"}
                   </p>
-                  <a href="admin.html" style={{ display: "inline-block", padding: "8px 14px", background: "#2d5a3d", color: "white", borderRadius: 8, textDecoration: "none", fontFamily: "sans-serif", fontSize: 12, fontWeight: 800, letterSpacing: 1 }}>
-                    + Add Recipe
-                  </a>
                 </div>
+
+                <ControlsBar
+                  search={search} onSearch={setSearch}
+                  mealFilter={mealFilter} onMealFilter={setMealFilter}
+                  timeFilter={timeFilter} onTimeFilter={setTimeFilter}
+                  view={view} onViewChange={setView}
+                  showFilters={showFilters} onToggleFilters={() => setShowFilters(v => !v)}
+                  activeFilterCount={activeFilterCount}
+                />
+
+                {filtered.length === 0 ? (
+                  <div style={{ background: "white", borderRadius: 14, padding: "40px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+                    <div style={{ fontSize: 32, marginBottom: 10 }}>🔍</div>
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: "#1a3d28", marginBottom: 6 }}>No recipes match</div>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginBottom: 16 }}>Try different search terms or clear your filters.</div>
+                    <button
+                      onClick={() => { setSearch(""); setMealFilter("all"); setTimeFilter("all"); }}
+                      style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
+                    >CLEAR ALL</button>
+                  </div>
+                ) : view === "grid" ? (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, animation: "fadeUp 0.35s ease" }}>
+                    {filtered.map(r => (
+                      <RecipeGridCard key={r.id} recipe={r} onClick={() => setActive(r)} />
+                    ))}
+                  </div>
+                ) : (
+                  Object.entries(grouped).map(([type, list], gi) => (
+                    <div key={type} style={{ marginBottom: 22, animation: `fadeUp ${0.35 + gi * 0.08}s ease` }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 3, color: "#2d5a3d", textTransform: "uppercase" }}>{type}</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#789" }}>{list.length}</div>
+                        <div style={{ flex: 1, height: 1, background: "#c8e6d4" }} />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {list.map(r => (
+                          <RecipeListCard key={r.id} recipe={r} onClick={() => setActive(r)} />
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
               </React.Fragment>
             ) : (
               <RecipeView recipe={active} onBack={() => setActive(null)} />

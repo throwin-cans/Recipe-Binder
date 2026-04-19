@@ -8,6 +8,7 @@
       "title": "Chipotle-Style Cilantro Lime Rice",
       "description": "Fresh, zesty, and perfectly fluffy — just like the real thing.",
       "baseServings": 6,
+      "totalMinutes": 30,
       "ingredients": [
         { "id": "i1", "name": "long-grain white rice (basmati recommended)", "amount": 2, "unit": "cup" },
         { "id": "i2", "name": "water or chicken broth (or half and half)", "amount": 4, "unit": "cup" },
@@ -34,6 +35,7 @@
       "title": "Crispy Oven-Roasted Garbanzo Beans",
       "description": "Golden, crunchy, and perfectly seasoned — great as a snack, salad topper, or bowl addition.",
       "baseServings": 4,
+      "totalMinutes": 50,
       "ingredients": [
         { "id": "i1", "name": "cans of garbanzo beans (15 oz each), drained and rinsed", "amount": 2, "unit": null },
         { "id": "i2", "name": "olive oil", "amount": 2, "unit": "tbsp" },
@@ -61,6 +63,7 @@
       "title": "Smoky Pan-Seared Chicken",
       "description": "Hard-seared, semi-charred crust. Juicy, tender inside. Minimal seasoning — all smoke, all heat.",
       "baseServings": 2,
+      "totalMinutes": 35,
       "ingredients": [
         { "id": "i1", "name": "boneless skinless chicken breasts (or thighs)", "amount": 2, "unit": null },
         { "id": "i2", "name": "smoked paprika", "amount": 1.5, "unit": "tsp" },
