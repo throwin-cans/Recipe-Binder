@@ -434,6 +434,117 @@
         }
       ],
       "notes": "The cream cheese MUST be at room temp — cold cream cheese won't blend smoothly and you'll get lumpy filling. Leave it on the counter for at least an hour before starting. For the drizzle: a zip-top bag with a tiny corner snipped off makes the cleanest pattern. If your chocolate gets too thick, stir in a teaspoon of coconut oil to thin it. Storage: refrigerated airtight for up to 2 weeks, or freeze for 2 months."
+    },
+    {
+      "id": "surfer-on-acid",
+      "emoji": "🏄",
+      "tag": "Cocktail",
+      "mealType": "Drinks",
+      "title": "Surfer on Acid",
+      "description": "Tropical Jäger cocktail — coconut, pineapple, and an herbal punch.",
+      "baseServings": 1,
+      "totalMinutes": 3,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "Jägermeister",
+          "amount": 1.5,
+          "unit": "oz"
+        },
+        {
+          "id": "i2",
+          "name": "Malibu coconut rum",
+          "amount": 1.5,
+          "unit": "oz"
+        },
+        {
+          "id": "i3",
+          "name": "pineapple juice",
+          "amount": 4,
+          "unit": "oz"
+        },
+        {
+          "id": "i4",
+          "name": "ice cubes",
+          "amount": 1,
+          "unit": "cup"
+        },
+        {
+          "id": "i5",
+          "name": "pineapple wedge for garnish (optional)",
+          "amount": 1,
+          "unit": null
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Fill the glass",
+          "content": "Fill a highball or Collins glass with ice cubes.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Build the drink",
+          "content": "Pour the Jägermeister and Malibu over the ice, then top with pineapple juice.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Stir and garnish",
+          "content": "Give it a gentle stir to combine. Garnish with a pineapple wedge if you're feeling fancy.",
+          "timer": null
+        }
+      ],
+      "notes": "The pineapple juice is the magic — it smooths out the Jäger's bitterness and ties the coconut and herbal flavors together. Use fresh pineapple juice if you can swing it; canned works but isn't as bright.",
+      "variants": [
+        {
+          "name": "Shot version",
+          "description": "Same flavors, served as a quick shot.",
+          "baseServings": 1,
+          "ingredients": [
+            {
+              "id": "vi1",
+              "name": "Jägermeister",
+              "amount": 0.75,
+              "unit": "oz"
+            },
+            {
+              "id": "vi2",
+              "name": "Malibu coconut rum",
+              "amount": 0.75,
+              "unit": "oz"
+            },
+            {
+              "id": "vi3",
+              "name": "pineapple juice",
+              "amount": 0.75,
+              "unit": "oz"
+            },
+            {
+              "id": "vi4",
+              "name": "ice cubes (for shaker)",
+              "amount": 1,
+              "unit": "cup"
+            }
+          ],
+          "steps": [
+            {
+              "id": "vs1",
+              "title": "Shake",
+              "content": "Add all ingredients to a cocktail shaker with ice. Shake vigorously for about 10 seconds.",
+              "timer": 10
+            },
+            {
+              "id": "vs2",
+              "title": "Strain",
+              "content": "Strain into a shot glass. Drink immediately while it's still cold and frothy.",
+              "timer": null
+            }
+          ],
+          "notes": "Equal parts — makes about a 2.25 oz shot, which is a bit generous. Scale to 0.5 oz each if you want a smaller shot."
+        }
+      ]
     }
   ]
 }
