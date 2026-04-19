@@ -353,6 +353,87 @@
         }
       ],
       "notes": "The avocado needs to be genuinely ripe — it should yield to gentle pressure but not feel mushy. Unripe avocado is the #1 reason avo toast is disappointing. For extra credit: top with a soft-boiled egg, crumbled feta, or microgreens."
+    },
+    {
+      "id": "classic-oreo-balls",
+      "emoji": "🍪",
+      "tag": "Dessert / No-Bake",
+      "mealType": "Desserts",
+      "title": "Classic Oreo Balls",
+      "description": "No-bake, 3-ingredient classic — cookies-and-cream truffles with a white chocolate drizzle.",
+      "baseServings": 24,
+      "totalMinutes": 60,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "Oreo cookies (1 standard package)",
+          "amount": 36,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "cream cheese, softened to room temp",
+          "amount": 8,
+          "unit": "oz"
+        },
+        {
+          "id": "i3",
+          "name": "white chocolate or almond bark, for drizzling",
+          "amount": 4,
+          "unit": "oz"
+        },
+        {
+          "id": "i4",
+          "name": "crushed Oreo crumbs, for topping (optional)",
+          "amount": 2,
+          "unit": "tbsp"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Crush the Oreos",
+          "content": "Place all the Oreos into a food processor and pulse until you have fine, uniform crumbs. No food processor? Put them in a zip-top bag and crush with a rolling pin until very fine.",
+          "timer": 120
+        },
+        {
+          "id": "s2",
+          "title": "Mix in cream cheese",
+          "content": "Add the cream cheese to the Oreo crumbs and blend (or mix by hand) until fully combined into a thick, uniform dough. It should hold together easily when pressed.",
+          "timer": 90
+        },
+        {
+          "id": "s3",
+          "title": "Roll into balls",
+          "content": "Scoop tablespoon-sized portions and roll between your palms into smooth 1-inch balls. Place on a parchment-lined baking sheet as you go.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Chill the balls",
+          "content": "Refrigerate the balls on the baking sheet for at least 30 minutes, or freeze for 15 minutes. Firm balls hold the drizzle better and won't smudge when handled.",
+          "timer": 1800
+        },
+        {
+          "id": "s5",
+          "title": "Melt the chocolate",
+          "content": "Melt the white chocolate in a microwave-safe bowl in 30-second bursts, stirring between each, until smooth. Don't overheat — white chocolate seizes easily.",
+          "timer": 120
+        },
+        {
+          "id": "s6",
+          "title": "Drizzle the white chocolate",
+          "content": "Transfer the melted chocolate into a zip-top bag and snip a tiny corner off (or use a spoon). Drizzle back and forth across the tops of the chilled balls in a zigzag pattern.",
+          "timer": null
+        },
+        {
+          "id": "s7",
+          "title": "Decorate and set",
+          "content": "While the drizzle is still wet, sprinkle the extra Oreo crumbs on top if using. Let the drizzle set at room temp for 15 minutes or refrigerate for faster setting.",
+          "timer": 900
+        }
+      ],
+      "notes": "The cream cheese MUST be at room temp — cold cream cheese won't blend smoothly and you'll get lumpy filling. Leave it on the counter for at least an hour before starting. For the drizzle: a zip-top bag with a tiny corner snipped off makes the cleanest pattern. If your chocolate gets too thick, stir in a teaspoon of coconut oil to thin it. Storage: refrigerated airtight for up to 2 weeks, or freeze for 2 months."
     }
   ]
 }
