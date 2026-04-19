@@ -1,4 +1,4 @@
-const CACHE_NAME = "recipe-binder-v4";
+const CACHE_NAME = "recipe-binder-v5";
 const CORE_ASSETS = [
   "./",
   "./index.html",

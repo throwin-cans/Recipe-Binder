@@ -119,7 +119,7 @@
       );
     }
 
-    function RecipeView({ recipe, onBack }) {
+    function RecipeView({ recipe, onBack, cart, onCartChange }) {
       const [servings, setServings] = useState(recipe.baseServings);
       const [done, setDone] = useState(new Set());
       const mult = servings / recipe.baseServings;
@@ -128,6 +128,27 @@
         n.has(id) ? n.delete(id) : n.add(id);
         return n;
       });
+
+      const cartEntry = cart.find(c => c.recipeId === recipe.id);
+      const inCart = !!cartEntry;
+      const [includeSeasonings, setIncludeSeasonings] = useState(cartEntry ? cartEntry.includeSeasonings : true);
+
+      const seasoningCount = recipe.ingredients.filter(i => isSeasoning(i.name)).length;
+
+      const toggleCart = () => {
+        if (inCart) {
+          onCartChange(cart.filter(c => c.recipeId !== recipe.id));
+        } else {
+          onCartChange([...cart, { recipeId: recipe.id, includeSeasonings }]);
+        }
+      };
+
+      const updateSeasoningsFlag = (newValue) => {
+        setIncludeSeasonings(newValue);
+        if (inCart) {
+          onCartChange(cart.map(c => c.recipeId === recipe.id ? { ...c, includeSeasonings: newValue } : c));
+        }
+      };
 
       const savePDF = () => {
         const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${recipe.title}</title>
@@ -217,7 +238,47 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                 <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 6 }}>Tips</div>
                 <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.7 }}>{recipe.notes}</p>
               </div>
-              <button onClick={savePDF} style={{ width: "100%", padding: "13px", borderRadius: 10, background: "#2d5a3d", border: "none", color: "white", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}>
+
+              {/* Cart section */}
+              <div style={{ border: "1.5px solid #c8e6d4", borderRadius: 10, padding: "14px 16px", marginBottom: 14, background: inCart ? "#f4fbf6" : "white" }}>
+                {seasoningCount > 0 && (
+                  <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, cursor: "pointer", fontSize: 13, color: "#2d5a3d", fontFamily: "sans-serif" }}>
+                    <input
+                      type="checkbox"
+                      checked={includeSeasonings}
+                      onChange={e => updateSeasoningsFlag(e.target.checked)}
+                      style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
+                    />
+                    <span><strong>Include seasonings</strong> in shopping list <span style={{ color: "#789", fontWeight: 400 }}>({seasoningCount} item{seasoningCount !== 1 ? "s" : ""})</span></span>
+                  </label>
+                )}
+                <button
+                  onClick={toggleCart}
+                  style={{
+                    width: "100%", padding: "12px", borderRadius: 8,
+                    background: inCart ? "white" : "#2d5a3d",
+                    color: inCart ? "#2d5a3d" : "white",
+                    border: inCart ? "1.5px solid #2d5a3d" : "none",
+                    fontSize: 13, fontWeight: 800, letterSpacing: 1,
+                    cursor: "pointer", fontFamily: "sans-serif",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8
+                  }}
+                >
+                  {inCart ? (
+                    <React.Fragment>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2d5a3d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      IN CART — TAP TO REMOVE
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="21" r="1" fill="white"/><circle cx="20" cy="21" r="1" fill="white"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      ADD TO CART
+                    </React.Fragment>
+                  )}
+                </button>
+              </div>
+
+              <button onClick={savePDF} style={{ width: "100%", padding: "13px", borderRadius: 10, background: "transparent", border: "1.5px solid #2d5a3d", color: "#2d5a3d", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}>
                 Save as PDF
               </button>
             </div>
@@ -226,18 +287,39 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       );
     }
 
-    function RecipeListCard({ recipe, onClick }) {
+    function StarIcon({ filled, size = 20 }) {
+      return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? "#f7b731" : "none"} stroke={filled ? "#f7b731" : "#a8d5b5"} strokeWidth="2" strokeLinejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+        </svg>
+      );
+    }
+
+    function RecipeListCard({ recipe, onClick, isFavorite, onToggleFavorite }) {
       return (
         <div onClick={onClick}
-          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s" }}
+          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s", position: "relative" }}
         >
-          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            style={{
+              position: "absolute", top: 10, right: 10, zIndex: 2,
+              background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
+              border: "none", borderRadius: "50%", width: 32, height: 32,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer"
+            }}
+          >
+            <StarIcon filled={isFavorite} size={18} />
+          </button>
+          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 52px 18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 30, lineHeight: 1 }}>{recipe.emoji}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 9, letterSpacing: 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 3 }}>{recipe.tag}</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif", lineHeight: 1.2 }}>{recipe.title}</div>
             </div>
-            <div style={{ textAlign: "right", flexShrink: 0 }}>
+            <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
               <div style={{ fontFamily: "sans-serif", fontSize: 9, color: "#a8d5b5", fontWeight: 800, letterSpacing: 1.5 }}>TIME</div>
               <div style={{ fontFamily: "sans-serif", fontSize: 14, color: "white", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
             </div>
@@ -253,11 +335,24 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       );
     }
 
-    function RecipeGridCard({ recipe, onClick }) {
+    function RecipeGridCard({ recipe, onClick, isFavorite, onToggleFavorite }) {
       return (
         <div onClick={onClick}
-          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", flexDirection: "column" }}
+          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", flexDirection: "column", position: "relative" }}
         >
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            style={{
+              position: "absolute", top: 6, left: 6, zIndex: 2,
+              background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)",
+              border: "none", borderRadius: "50%", width: 26, height: 26,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer"
+            }}
+          >
+            <StarIcon filled={isFavorite} size={14} />
+          </button>
           <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 10px 14px", textAlign: "center", position: "relative" }}>
             <div style={{ position: "absolute", top: 7, right: 9, fontFamily: "sans-serif", fontSize: 10, color: "#a8d5b5", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
             <div style={{ fontSize: 34, lineHeight: 1, marginBottom: 4 }}>{recipe.emoji}</div>
@@ -338,10 +433,32 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       );
     }
 
-    function ControlsBar({ search, onSearch, mealFilter, onMealFilter, timeFilter, onTimeFilter, view, onViewChange, showFilters, onToggleFilters, activeFilterCount }) {
+    function ControlsBar({ search, onSearch, mealFilter, onMealFilter, timeFilter, onTimeFilter, view, onViewChange, showFilters, onToggleFilters, activeFilterCount, favoritesOnly, onToggleFavoritesOnly, favoritesCount }) {
       return (
         <div style={{ background: "white", borderRadius: 14, padding: "14px 14px 10px", marginBottom: 18, boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
           <SearchBar value={search} onChange={onSearch} />
+
+          <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={onToggleFavoritesOnly}
+              style={{
+                padding: "6px 12px", borderRadius: 20,
+                border: favoritesOnly ? "1.5px solid #f7b731" : "1.5px solid #c8e6d4",
+                background: favoritesOnly ? "#fff8e1" : "white",
+                color: favoritesOnly ? "#8a6d1a" : "#2d5a3d",
+                fontSize: 12, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Lato', sans-serif",
+                display: "flex", alignItems: "center", gap: 6,
+                transition: "all 0.15s"
+              }}
+            >
+              <StarIcon filled={favoritesOnly} size={13} />
+              Favorites
+              {favoritesCount > 0 && (
+                <span style={{ background: favoritesOnly ? "#f7b731" : "#c8e6d4", color: favoritesOnly ? "white" : "#2d5a3d", fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 10, minWidth: 16, textAlign: "center" }}>{favoritesCount}</span>
+              )}
+            </button>
+          </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button
@@ -450,8 +567,268 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       return true;
     }
 
+    // ── Seasoning detection ──
+    const SEASONING_KEYWORDS = [
+      "salt", "pepper", "paprika", "cumin", "garlic powder", "onion powder",
+      "oregano", "basil", "thyme", "cayenne", "chili powder", "cinnamon",
+      "nutmeg", "sage", "rosemary", "bay leaf", "red pepper flakes",
+      "seasoning", "spice", "herb", "turmeric", "coriander", "cardamom",
+      "clove", "allspice", "dill", "tarragon", "mustard powder", "curry powder"
+    ];
+    function isSeasoning(ingredientName) {
+      if (!ingredientName) return false;
+      const lower = ingredientName.toLowerCase();
+      return SEASONING_KEYWORDS.some(kw => lower.includes(kw));
+    }
+
+    // ── Favorites storage ──
+    function loadFavorites() {
+      try { return new Set(JSON.parse(localStorage.getItem("rb_favorites") || "[]")); }
+      catch { return new Set(); }
+    }
+    function saveFavorites(favSet) {
+      localStorage.setItem("rb_favorites", JSON.stringify([...favSet]));
+    }
+
+    // ── Cart storage ──
+    // Shape: [{ recipeId, includeSeasonings }]
+    function loadCart() {
+      try { return JSON.parse(localStorage.getItem("rb_cart") || "[]"); }
+      catch { return []; }
+    }
+    function saveCart(cart) {
+      localStorage.setItem("rb_cart", JSON.stringify(cart));
+    }
+    // Checked items in cart (set of "recipeId::ingredientId" keys)
+    function loadCartChecks() {
+      try { return new Set(JSON.parse(localStorage.getItem("rb_cart_checks") || "[]")); }
+      catch { return new Set(); }
+    }
+    function saveCartChecks(checks) {
+      localStorage.setItem("rb_cart_checks", JSON.stringify([...checks]));
+    }
+
+    // ── Cart View ──
+
+    function aggregateCartIngredients(cart, recipes) {
+      // Returns a flat list of { key, recipeTitle, recipeEmoji, name, amount, unit, isSeasoning }
+      const items = [];
+      cart.forEach(entry => {
+        const recipe = recipes.find(r => r.id === entry.recipeId);
+        if (!recipe) return;
+        recipe.ingredients.forEach(ing => {
+          const seasoning = isSeasoning(ing.name);
+          if (seasoning && !entry.includeSeasonings) return;
+          items.push({
+            key: `${recipe.id}::${ing.id}`,
+            recipeId: recipe.id,
+            recipeTitle: recipe.title,
+            recipeEmoji: recipe.emoji,
+            name: ing.name,
+            amount: ing.amount,
+            unit: ing.unit,
+            isSeasoning: seasoning,
+          });
+        });
+      });
+      return items;
+    }
+
+    // Group items by recipe for display
+    function groupByRecipe(items) {
+      const map = new Map();
+      items.forEach(it => {
+        if (!map.has(it.recipeId)) {
+          map.set(it.recipeId, { title: it.recipeTitle, emoji: it.recipeEmoji, items: [] });
+        }
+        map.get(it.recipeId).items.push(it);
+      });
+      return [...map.values()];
+    }
+
+    function CartView({ cart, recipes, onBack, onCartChange, checks, onChecksChange }) {
+      const items = aggregateCartIngredients(cart, recipes);
+      const grouped = groupByRecipe(items);
+      const totalItems = items.length;
+      const checkedCount = items.filter(it => checks.has(it.key)).length;
+
+      const toggleCheck = (key) => {
+        const newChecks = new Set(checks);
+        newChecks.has(key) ? newChecks.delete(key) : newChecks.add(key);
+        onChecksChange(newChecks);
+      };
+
+      const clearCart = () => {
+        if (confirm("Clear all recipes from your cart?")) {
+          onCartChange([]);
+          onChecksChange(new Set());
+        }
+      };
+
+      const removeRecipeFromCart = (recipeId) => {
+        onCartChange(cart.filter(c => c.recipeId !== recipeId));
+        // Also clear checks for that recipe
+        const newChecks = new Set([...checks].filter(k => !k.startsWith(recipeId + "::")));
+        onChecksChange(newChecks);
+      };
+
+      const toggleSeasoningsFor = (recipeId, newValue) => {
+        onCartChange(cart.map(c => c.recipeId === recipeId ? { ...c, includeSeasonings: newValue } : c));
+      };
+
+      const printPDF = () => {
+        const lines = [];
+        grouped.forEach(g => {
+          lines.push(`<h2>${g.emoji} ${g.title}</h2>`);
+          lines.push(`<ul>`);
+          g.items.forEach(it => {
+            const amt = it.amount ? `${formatAmount(it.amount, 1)}${it.unit ? " " + it.unit : ""} ` : "";
+            lines.push(`<li><label><input type="checkbox"> ${amt}${it.name}</label></li>`);
+          });
+          lines.push(`</ul>`);
+        });
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Shopping List</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Lato',sans-serif;color:#222;padding:40px;max-width:640px;margin:0 auto;background:#fff}
+  h1{font-family:'Playfair Display',serif;font-size:28px;color:#2d5a3d;margin-bottom:4px}
+  .meta{color:#777;font-size:13px;margin-bottom:18px}
+  hr{border:none;border-top:2px solid #2d5a3d;margin:12px 0 18px}
+  h2{font-family:'Playfair Display',serif;font-size:16px;color:#1a3d28;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid #eee}
+  ul{list-style:none;padding:0;margin-bottom:12px}
+  li{padding:8px 0;font-size:14px;line-height:1.5}
+  label{display:flex;align-items:center;gap:10px;cursor:pointer}
+  input[type=checkbox]{width:16px;height:16px;accent-color:#2d5a3d}
+  @media print { body { padding: 20px; } }
+</style></head><body>
+<h1>🛒 Shopping List</h1>
+<p class="meta">${cart.length} recipe${cart.length !== 1 ? "s" : ""} · ${totalItems} item${totalItems !== 1 ? "s" : ""}</p>
+<hr>
+${lines.join("\n")}
+</body></html>`;
+        const w = window.open("", "_blank");
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 400);
+      };
+
+      return (
+        <div style={{ animation: "slideIn 0.25s ease" }}>
+          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 16, fontFamily: "sans-serif", padding: 0 }}>
+            ← Back to Binder
+          </button>
+
+          <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            <div style={{ background: "linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%)", padding: "24px 28px 22px" }}>
+              <div style={{ fontSize: 10, letterSpacing: 3, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 6 }}>Shopping</div>
+              <div style={{ fontSize: 32, marginBottom: 4 }}>🛒</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: "white", margin: 0, fontFamily: "'Playfair Display', serif" }}>Cart</h2>
+              <p style={{ color: "#a8d5b5", marginTop: 6, fontSize: 13, fontFamily: "sans-serif" }}>
+                {cart.length === 0 ? "Empty — add recipes from your binder" : `${cart.length} recipe${cart.length !== 1 ? "s" : ""} · ${totalItems} item${totalItems !== 1 ? "s" : ""} (${checkedCount} checked)`}
+              </p>
+            </div>
+
+            <div style={{ padding: "22px 22px" }}>
+              {cart.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "30px 10px", color: "#789", fontSize: 14 }}>
+                  Your cart is empty.<br />
+                  Open a recipe and tap "Add to Cart" to start building your shopping list.
+                </div>
+              ) : (
+                <React.Fragment>
+                  {grouped.map(g => {
+                    const entry = cart.find(c => c.recipeId === g.items[0].recipeId);
+                    const recipeSeasoningCount = (recipes.find(r => r.id === g.items[0].recipeId)?.ingredients || []).filter(i => isSeasoning(i.name)).length;
+                    return (
+                      <div key={g.items[0].recipeId} style={{ marginBottom: 20, paddingBottom: 18, borderBottom: "1px solid #edf7f1" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                          <span style={{ fontSize: 20 }}>{g.emoji}</span>
+                          <div style={{ flex: 1, fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: "#1a3d28" }}>{g.title}</div>
+                          <button
+                            onClick={() => removeRecipeFromCart(g.items[0].recipeId)}
+                            aria-label="Remove recipe from cart"
+                            style={{ background: "transparent", border: "none", color: "#b33", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
+                          >×</button>
+                        </div>
+
+                        {recipeSeasoningCount > 0 && entry && (
+                          <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, marginLeft: 28, fontSize: 12, color: "#5a8a6a", cursor: "pointer", fontFamily: "sans-serif" }}>
+                            <input
+                              type="checkbox"
+                              checked={entry.includeSeasonings}
+                              onChange={e => toggleSeasoningsFor(entry.recipeId, e.target.checked)}
+                              style={{ width: 14, height: 14, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
+                            />
+                            Include seasonings ({recipeSeasoningCount})
+                          </label>
+                        )}
+
+                        <div style={{ paddingLeft: 28 }}>
+                          {g.items.map(it => {
+                            const isChecked = checks.has(it.key);
+                            return (
+                              <label
+                                key={it.key}
+                                style={{
+                                  display: "flex", alignItems: "center", gap: 10, padding: "7px 0",
+                                  cursor: "pointer", opacity: isChecked ? 0.4 : 1, transition: "opacity 0.15s"
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={() => toggleCheck(it.key)}
+                                  style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, cursor: "pointer", flexShrink: 0 }}
+                                />
+                                <span style={{
+                                  fontFamily: "sans-serif", fontSize: 13, color: "#333",
+                                  textDecoration: isChecked ? "line-through" : "none"
+                                }}>
+                                  {it.amount ? (
+                                    <React.Fragment>
+                                      <strong style={{ color: "#2d5a3d" }}>{formatAmount(it.amount, 1)}{it.unit ? ` ${it.unit}` : ""}</strong>
+                                      {" "}
+                                    </React.Fragment>
+                                  ) : null}
+                                  {it.name}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+                    <button
+                      onClick={printPDF}
+                      style={{ flex: 1, padding: "12px", borderRadius: 10, background: "#2d5a3d", border: "none", color: "white", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
+                    >
+                      Print as PDF
+                    </button>
+                    <button
+                      onClick={clearCart}
+                      style={{ padding: "12px 16px", borderRadius: 10, background: "transparent", border: "1.5px solid #b33", color: "#b33", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </React.Fragment>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Cart View ──
+
     function RecipeBinder() {
       const [active, setActive] = useState(null);
+      const [showCart, setShowCart] = useState(false);
       const [recipes, setRecipes] = useState([]);
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
@@ -459,9 +836,31 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       const [search, setSearch] = useState("");
       const [mealFilter, setMealFilter] = useState(() => localStorage.getItem("rb_meal") || "all");
       const [timeFilter, setTimeFilter] = useState(() => localStorage.getItem("rb_time") || "all");
+      const [favoritesOnly, setFavoritesOnly] = useState(() => localStorage.getItem("rb_fav_filter") === "1");
       const [view, setView] = useState(() => localStorage.getItem("rb_view") || "list");
       const [showFilters, setShowFilters] = useState(false);
       const [refreshing, setRefreshing] = useState(false);
+
+      const [favorites, setFavorites] = useState(() => loadFavorites());
+      const [cart, setCart] = useState(() => loadCart());
+      const [cartChecks, setCartChecks] = useState(() => loadCartChecks());
+
+      const toggleFavorite = (recipeId) => {
+        const newFavs = new Set(favorites);
+        newFavs.has(recipeId) ? newFavs.delete(recipeId) : newFavs.add(recipeId);
+        setFavorites(newFavs);
+        saveFavorites(newFavs);
+      };
+
+      const updateCart = (newCart) => {
+        setCart(newCart);
+        saveCart(newCart);
+      };
+
+      const updateCartChecks = (newChecks) => {
+        setCartChecks(newChecks);
+        saveCartChecks(newChecks);
+      };
 
       const loadRecipes = (isRefresh = false) => {
         if (isRefresh) setRefreshing(true);
@@ -498,6 +897,7 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       useEffect(() => { localStorage.setItem("rb_meal", mealFilter); }, [mealFilter]);
       useEffect(() => { localStorage.setItem("rb_time", timeFilter); }, [timeFilter]);
       useEffect(() => { localStorage.setItem("rb_view", view); }, [view]);
+      useEffect(() => { localStorage.setItem("rb_fav_filter", favoritesOnly ? "1" : "0"); }, [favoritesOnly]);
 
       useEffect(() => {
         loadRecipes();
@@ -510,9 +910,10 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
         return recipes.filter(r =>
           matchesSearch(r, search) &&
           (mealFilter === "all" || r.mealType === mealFilter) &&
-          matchesTimeBucket(r, timeFilter)
+          matchesTimeBucket(r, timeFilter) &&
+          (!favoritesOnly || favorites.has(r.id))
         );
-      }, [recipes, search, mealFilter, timeFilter]);
+      }, [recipes, search, mealFilter, timeFilter, favoritesOnly, favorites]);
 
       const grouped = useMemo(() => {
         return MEAL_ORDER.reduce((acc, type) => {
@@ -532,7 +933,16 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
       return (
         <div style={{ minHeight: "100vh", background: "#f0f7f2", padding: "24px 14px", fontFamily: "'Lato', sans-serif" }}>
           <div style={{ maxWidth: 540, margin: "0 auto" }}>
-            {!active ? (
+            {showCart ? (
+              <CartView
+                cart={cart}
+                recipes={recipes}
+                onBack={() => setShowCart(false)}
+                onCartChange={updateCart}
+                checks={cartChecks}
+                onChecksChange={updateCartChecks}
+              />
+            ) : !active ? (
               <React.Fragment>
                 <div style={{ marginBottom: 18, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, animation: "fadeUp 0.3s ease" }}>
                   <div>
@@ -542,26 +952,57 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                       {filtered.length} of {recipes.length} recipes {search || activeFilterCount > 0 ? "shown" : "saved"}
                     </p>
                   </div>
-                  <button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    aria-label="Refresh"
-                    style={{
-                      width: 40, height: 40, borderRadius: "50%",
-                      border: "1.5px solid #c8e6d4",
-                      background: "white",
-                      color: "#2d5a3d",
-                      cursor: refreshing ? "default" : "pointer",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, marginTop: 6,
-                      boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
-                      <path d="M21 12a9 9 0 11-3-6.7L21 8" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M21 3v5h-5" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexShrink: 0 }}>
+                    <button
+                      onClick={() => setShowCart(true)}
+                      aria-label="Cart"
+                      style={{
+                        position: "relative",
+                        width: 40, height: 40, borderRadius: "50%",
+                        border: "1.5px solid #c8e6d4",
+                        background: cart.length > 0 ? "#2d5a3d" : "white",
+                        color: cart.length > 0 ? "white" : "#2d5a3d",
+                        cursor: "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <circle cx="9" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
+                        <circle cx="20" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke={cart.length > 0 ? "white" : "#2d5a3d"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      {cart.length > 0 && (
+                        <span style={{
+                          position: "absolute", top: -4, right: -4,
+                          background: "#f7b731", color: "#1a3d28",
+                          fontSize: 10, fontWeight: 800,
+                          minWidth: 18, height: 18, padding: "0 5px",
+                          borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                          border: "2px solid white"
+                        }}>{cart.length}</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleRefresh}
+                      disabled={refreshing}
+                      aria-label="Refresh"
+                      style={{
+                        width: 40, height: 40, borderRadius: "50%",
+                        border: "1.5px solid #c8e6d4",
+                        background: "white",
+                        color: "#2d5a3d",
+                        cursor: refreshing ? "default" : "pointer",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
+                      }}
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
+                        <path d="M21 12a9 9 0 11-3-6.7L21 8" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M21 3v5h-5" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <ControlsBar
@@ -571,6 +1012,8 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                   view={view} onViewChange={setView}
                   showFilters={showFilters} onToggleFilters={() => setShowFilters(v => !v)}
                   activeFilterCount={activeFilterCount}
+                  favoritesOnly={favoritesOnly} onToggleFavoritesOnly={() => setFavoritesOnly(v => !v)}
+                  favoritesCount={favorites.size}
                 />
 
                 {filtered.length === 0 ? (
@@ -579,14 +1022,20 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                     <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: "#1a3d28", marginBottom: 6 }}>No recipes match</div>
                     <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginBottom: 16 }}>Try different search terms or clear your filters.</div>
                     <button
-                      onClick={() => { setSearch(""); setMealFilter("all"); setTimeFilter("all"); }}
+                      onClick={() => { setSearch(""); setMealFilter("all"); setTimeFilter("all"); setFavoritesOnly(false); }}
                       style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
                     >CLEAR ALL</button>
                   </div>
                 ) : view === "grid" ? (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, animation: "fadeUp 0.35s ease" }}>
                     {filtered.map(r => (
-                      <RecipeGridCard key={r.id} recipe={r} onClick={() => setActive(r)} />
+                      <RecipeGridCard
+                        key={r.id}
+                        recipe={r}
+                        onClick={() => setActive(r)}
+                        isFavorite={favorites.has(r.id)}
+                        onToggleFavorite={() => toggleFavorite(r.id)}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -599,7 +1048,13 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {list.map(r => (
-                          <RecipeListCard key={r.id} recipe={r} onClick={() => setActive(r)} />
+                          <RecipeListCard
+                            key={r.id}
+                            recipe={r}
+                            onClick={() => setActive(r)}
+                            isFavorite={favorites.has(r.id)}
+                            onToggleFavorite={() => toggleFavorite(r.id)}
+                          />
                         ))}
                       </div>
                     </div>
@@ -607,7 +1062,7 @@ ${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span clas
                 )}
               </React.Fragment>
             ) : (
-              <RecipeView recipe={active} onBack={() => setActive(null)} />
+              <RecipeView recipe={active} onBack={() => setActive(null)} cart={cart} onCartChange={updateCart} />
             )}
           </div>
         </div>

@@ -205,9 +205,22 @@
       const pwInput = el("input", { type: "password", placeholder: "Password", autocomplete: "current-password" });
       pwInput.addEventListener("keydown", e => { if (e.key === "Enter") btn.click(); });
 
+      const rememberWrap = el("label", {
+        style: "display: flex; align-items: center; gap: 8px; margin-top: 10px; cursor: pointer; font-size: 13px; color: #2d5a3d; user-select: none;"
+      });
+      const rememberCheckbox = el("input", { type: "checkbox" });
+      rememberCheckbox.style.width = "auto";
+      rememberCheckbox.style.margin = "0";
+      rememberCheckbox.style.cursor = "pointer";
+      rememberWrap.appendChild(rememberCheckbox);
+      rememberWrap.appendChild(document.createTextNode("Remember this device"));
+
       const btn = el("button", { class: "btn", onClick: async () => {
         const hash = await sha256(pwInput.value);
         if (hash === CONFIG.passwordHash) {
+          if (rememberCheckbox.checked) {
+            localStorage.setItem("rb_trusted_device", "1");
+          }
           if (CONFIG.token) {
             renderMain();
           } else {
@@ -227,7 +240,7 @@
         }
       } }, "Reset Settings");
 
-      body.appendChild(el("div", { class: "group" }, pwInput));
+      body.appendChild(el("div", { class: "group" }, pwInput, rememberWrap));
       body.appendChild(btn);
       body.appendChild(el("div", { class: "row" }, resetBtn));
 
@@ -327,7 +340,28 @@
           location.reload();
         }
       } }, "Change Token");
-      return el("div", { class: "row" }, logoutBtn, changeTokenBtn);
+
+      const row = el("div", { class: "row" }, logoutBtn, changeTokenBtn);
+
+      // If this is a trusted device, offer a way to un-trust it
+      if (localStorage.getItem("rb_trusted_device") === "1") {
+        const forgetRow = el("div", { style: "margin-top: 8px;" });
+        const forgetBtn = el("button", {
+          class: "btn secondary",
+          style: "font-size: 11px; padding: 8px; opacity: 0.7;",
+          onClick: () => {
+            if (confirm("Forget this device? You'll need to enter the admin password next time.")) {
+              localStorage.removeItem("rb_trusted_device");
+              sessionStorage.setItem("rb_locked", "1");
+              location.reload();
+            }
+          }
+        }, "Forget This Device");
+        forgetRow.appendChild(forgetBtn);
+        return el("div", {}, row, forgetRow);
+      }
+
+      return row;
     }
 
     function validateRecipe(recipe) {
@@ -758,6 +792,13 @@
     // Route to the right screen
     if (!CONFIG.owner || !CONFIG.repo || !CONFIG.passwordHash) {
       renderSetup();
+    } else if (localStorage.getItem("rb_trusted_device") === "1" && !sessionStorage.getItem("rb_locked")) {
+      // Trusted device — skip password, go straight to token (if missing) or main
+      if (CONFIG.token) {
+        renderMain();
+      } else {
+        renderTokenEntry();
+      }
     } else {
       renderUnlock();
     }
