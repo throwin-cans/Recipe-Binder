@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Recipe Binder</title>
+  <meta name="description" content="My personal recipe binder" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#2d5a3d" />
+
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Recipes" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #f0f7f2; -webkit-font-smoothing: antialiased; }
+    body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    button { -webkit-tap-highlight-color: transparent; }
+  </style>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="react">
+    const { useState, useRef, useEffect } = React;
+
+    const ALL_RECIPES = [
+      {
+        id: "r1",
+        emoji: "🍚",
+        tag: "Side Dish",
+        mealType: "Sides",
+        title: "Chipotle-Style Cilantro Lime Rice",
+        description: "Fresh, zesty, and perfectly fluffy — just like the real thing.",
+        baseServings: 6,
+        ingredients: [
+          { id: "i1", name: "long-grain white rice (basmati recommended)", amount: 2, unit: "cup" },
+          { id: "i2", name: "water or chicken broth (or half and half)", amount: 4, unit: "cup" },
+          { id: "i3", name: "butter or oil", amount: 2, unit: "tbsp" },
+          { id: "i4", name: "salt", amount: 1, unit: "tsp" },
+          { id: "i5", name: "fresh lime juice", amount: 4, unit: "tbsp" },
+          { id: "i6", name: "lime zest", amount: 2, unit: "tsp" },
+          { id: "i7", name: "fresh cilantro, finely chopped", amount: 0.5, unit: "cup" },
+        ],
+        steps: [
+          { id: "s1", title: "Rinse the rice", content: "Rinse rice under cold water until the water runs mostly clear. This removes excess starch for fluffier rice.", timer: null },
+          { id: "s2", title: "Toast the rice", content: "In a saucepan over medium heat, melt butter or oil. Add rice and toast for 2–3 minutes, stirring, until lightly golden and fragrant.", timer: 3 * 60 },
+          { id: "s3", title: "Cook the rice", content: "Add water/broth and salt. Bring to a boil, then reduce heat to low. Cover and simmer for 18 minutes without lifting the lid.", timer: 18 * 60 },
+          { id: "s4", title: "Steam", content: "Remove from heat and let steam, covered, for 5 minutes.", timer: 5 * 60 },
+          { id: "s5", title: "Season and serve", content: "Fluff with a fork, then stir in lime juice, lime zest, and chopped cilantro. Taste and adjust salt or lime as needed.", timer: null },
+        ],
+        notes: "Use half broth, half water for a richer savory flavor. Add cilantro while rice is still warm so it wilts slightly and the flavor blooms.",
+      },
+      {
+        id: "r2",
+        emoji: "🫘",
+        tag: "Snack / Topping",
+        mealType: "Snacks",
+        title: "Crispy Oven-Roasted Garbanzo Beans",
+        description: "Golden, crunchy, and perfectly seasoned — great as a snack, salad topper, or bowl addition.",
+        baseServings: 4,
+        ingredients: [
+          { id: "i1", name: "cans of garbanzo beans (15 oz each), drained and rinsed", amount: 2, unit: null },
+          { id: "i2", name: "olive oil", amount: 2, unit: "tbsp" },
+          { id: "i3", name: "salt", amount: 0.75, unit: "tsp" },
+          { id: "i4", name: "garlic powder", amount: 0.5, unit: "tsp" },
+          { id: "i5", name: "smoked paprika", amount: 0.5, unit: "tsp" },
+          { id: "i6", name: "cumin", amount: 0.25, unit: "tsp" },
+          { id: "i7", name: "black pepper", amount: 0.25, unit: "tsp" },
+          { id: "i8", name: "cayenne pepper (optional)", amount: 0.125, unit: "tsp" },
+        ],
+        steps: [
+          { id: "s1", title: "Preheat oven", content: "Preheat your oven to 400°F (200°C). Line a baking sheet with parchment paper.", timer: null },
+          { id: "s2", title: "Dry the beans", content: "Spread the drained and rinsed beans on a clean towel. Pat completely dry — moisture is the enemy of crispiness. Let sit 10 minutes if you can.", timer: 10 * 60 },
+          { id: "s3", title: "Season", content: "Toss the dried beans with olive oil, salt, garlic powder, smoked paprika, cumin, black pepper, and cayenne if using.", timer: null },
+          { id: "s4", title: "Roast", content: "Spread in a single layer on the baking sheet — don't crowd them. Roast for 25–30 minutes, shaking the pan halfway through, until deeply golden and crispy.", timer: 30 * 60 },
+          { id: "s5", title: "Cool and serve", content: "Let them cool on the pan for 5–10 minutes — they crisp up further as they cool.", timer: 10 * 60 },
+        ],
+        notes: "Drying the beans thoroughly is the #1 key to crispiness — don't skip it. Best eaten within a few hours; they soften overnight.",
+      },
+      {
+        id: "r3",
+        emoji: "🍗",
+        tag: "Dinner",
+        mealType: "Dinner",
+        title: "Smoky Pan-Seared Chicken",
+        description: "Hard-seared, semi-charred crust. Juicy, tender inside. Minimal seasoning — all smoke, all heat.",
+        baseServings: 2,
+        ingredients: [
+          { id: "i1", name: "boneless skinless chicken breasts (or thighs)", amount: 2, unit: null },
+          { id: "i2", name: "smoked paprika", amount: 1.5, unit: "tsp" },
+          { id: "i3", name: "kosher salt", amount: 1, unit: "tsp" },
+          { id: "i4", name: "black pepper, coarsely ground", amount: 0.5, unit: "tsp" },
+          { id: "i5", name: "garlic powder", amount: 0.5, unit: "tsp" },
+          { id: "i6", name: "neutral oil, high smoke point (avocado or grapeseed) — no butter", amount: 2, unit: "tbsp" },
+        ],
+        steps: [
+          { id: "s1", title: "Dry & pound", content: "Pat chicken completely dry with paper towels — this is critical for a hard crust. If breasts are thick (>1 inch), pound to even thickness between plastic wrap so they cook evenly.", timer: null },
+          { id: "s2", title: "Season", content: "Mix smoked paprika, kosher salt, black pepper, and garlic powder. Coat both sides generously. Let the chicken sit at room temp for 15 minutes — don't skip this.", timer: 15 * 60 },
+          { id: "s3", title: "Rip-hot pan", content: "Heat your HexClad pan dry over high for 2.5–3 minutes — the hybrid surface needs longer than cast iron to get evenly rip-hot. Then add oil and heat another 30–60 seconds until it just begins to smoke. You want it seriously hot before the chicken goes in.", timer: 3 * 60 },
+          { id: "s4", title: "First sear — don't touch", content: "Lay chicken away from you into the pan. Press down firmly with a spatula for 10 seconds. DO NOT move it. Let it sear undisturbed until it releases easily and has a deep brown-to-char crust, about 4–5 min.", timer: 5 * 60 },
+          { id: "s5", title: "Flip & finish", content: "Flip once. Reduce heat to medium-high. Cook until internal temp hits 165°F (74°C), about 3–4 more minutes. Skip butter basting — it'll burn at this heat in a HexClad. Thighs can go slightly higher than 165°F — they benefit from it.", timer: 4 * 60 },
+          { id: "s6", title: "Rest", content: "Transfer to a cutting board and rest for 5 minutes, loosely tented. Do not cut early — this locks in all the juice.", timer: 5 * 60 },
+        ],
+        notes: "HexClad's hybrid surface handles high heat well and gives a solid sear — just preheat longer than you'd expect (2.5–3 min dry before oil). Skip butter basting; it burns at searing temps. You won't get quite the same char depth as cast iron, but the paprika will still do its thing. Use avocado or grapeseed oil only — high smoke point is essential here.",
+      },
+    ];
+
+    const MEAL_ORDER = ["Dinner", "Sides", "Snacks"];
+
+    function formatAmount(amount, multiplier) {
+      const val = amount * multiplier;
+      if (val === Math.floor(val)) return String(val);
+      const whole = Math.floor(val);
+      const dec = val - whole;
+      const fracs = [[0.125, "⅛"], [0.25, "¼"], [0.333, "⅓"], [0.5, "½"], [0.667, "⅔"], [0.75, "¾"]];
+      for (const [d, sym] of fracs) {
+        if (Math.abs(dec - d) < 0.05) return whole > 0 ? `${whole} ${sym}` : sym;
+      }
+      return val.toFixed(1);
+    }
+
+    function formatTime(s) {
+      if (s < 60) return `${s}s`;
+      const m = Math.floor(s / 60), r = s % 60;
+      return r > 0 ? `${m}m ${r}s` : `${m}m`;
+    }
+
+    function TimerWidget({ seconds }) {
+      const [remaining, setRemaining] = useState(seconds);
+      const [running, setRunning] = useState(false);
+      const ref = useRef(null);
+      const pct = (remaining / seconds) * 100;
+      const r = 13;
+      const circ = 2 * Math.PI * r;
+
+      const toggle = () => {
+        if (running) { clearInterval(ref.current); setRunning(false); }
+        else {
+          setRunning(true);
+          ref.current = setInterval(() => {
+            setRemaining(v => {
+              if (v <= 1) { clearInterval(ref.current); setRunning(false); return 0; }
+              return v - 1;
+            });
+          }, 1000);
+        }
+      };
+
+      const reset = () => { clearInterval(ref.current); setRunning(false); setRemaining(seconds); };
+
+      useEffect(() => () => clearInterval(ref.current), []);
+
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+          <svg width="32" height="32" style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+            <circle cx="16" cy="16" r={r} fill="none" stroke="#e2e8e4" strokeWidth="3" />
+            <circle cx="16" cy="16" r={r} fill="none" stroke="#5a8a6a" strokeWidth="3"
+              strokeDasharray={circ} strokeDashoffset={circ * (1 - pct / 100)}
+              style={{ transition: "stroke-dashoffset 0.8s linear" }} />
+          </svg>
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#5a8a6a", minWidth: 36, fontFamily: "monospace" }}>
+            {remaining === 0 ? "Done!" : formatTime(remaining)}
+          </span>
+          <button onClick={toggle} style={{ padding: "3px 10px", borderRadius: 20, border: "1.5px solid #5a8a6a", background: running ? "#5a8a6a" : "transparent", color: running ? "white" : "#5a8a6a", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "sans-serif" }}>
+            {running ? "Pause" : remaining === seconds ? "Start" : remaining === 0 ? "✓" : "Resume"}
+          </button>
+          {remaining !== seconds && remaining !== 0 && (
+            <button onClick={reset} style={{ padding: "3px 8px", borderRadius: 20, border: "1px solid #ccc", background: "transparent", color: "#999", fontSize: 11, cursor: "pointer", fontFamily: "sans-serif" }}>Reset</button>
+          )}
+        </div>
+      );
+    }
+
+    function RecipeView({ recipe, onBack }) {
+      const [servings, setServings] = useState(recipe.baseServings);
+      const [done, setDone] = useState(new Set());
+      const mult = servings / recipe.baseServings;
+      const toggleStep = id => setDone(p => {
+        const n = new Set(p);
+        n.has(id) ? n.delete(id) : n.add(id);
+        return n;
+      });
+
+      const savePDF = () => {
+        const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${recipe.title}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Lato',sans-serif;color:#222;padding:48px;max-width:680px;margin:0 auto;background:#fff}
+  h1{font-family:'Playfair Display',serif;font-size:30px;color:#2d5a3d;margin-bottom:6px}
+  .meta{color:#777;font-size:13px;margin-bottom:20px}
+  hr{border:none;border-top:2px solid #2d5a3d;margin:16px 0}
+  h2{font-family:'Playfair Display',serif;font-size:17px;color:#1a3d28;margin:18px 0 10px}
+  .ing{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #eee;font-size:14px}
+  .ing .amt{font-weight:700;color:#2d5a3d}
+  ol{padding-left:18px} ol li{padding:7px 0;font-size:14px;line-height:1.6}
+  ol li b{color:#1a3d28}
+  .notes{background:#f2faf5;border-left:3px solid #2d5a3d;padding:12px 16px;margin-top:18px;font-size:13px;line-height:1.6}
+</style></head><body>
+<h1>${recipe.emoji} ${recipe.title}</h1>
+<p class="meta">Servings: ${servings} &nbsp;·&nbsp; ${recipe.tag}</p>
+<hr>
+<h2>Ingredients</h2>
+${recipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span class="amt">${formatAmount(i.amount, mult)}${i.unit ? " " + i.unit : ""}</span></div>`).join("")}
+<h2>Instructions</h2>
+<ol>${recipe.steps.map(s => `<li><b>${s.title}:</b> ${s.content}${s.timer ? ` <em>(~${formatTime(s.timer)})</em>` : ""}</li>`).join("")}</ol>
+<div class="notes"><b>Tips:</b> ${recipe.notes}</div>
+</body></html>`;
+        const w = window.open("", "_blank");
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 400);
+      };
+
+      return (
+        <div style={{ animation: "slideIn 0.25s ease" }}>
+          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 16, fontFamily: "sans-serif", padding: 0 }}>
+            ← Back to Binder
+          </button>
+          <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+            <div style={{ background: "linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%)", padding: "28px 28px 24px" }}>
+              <div style={{ fontSize: 10, letterSpacing: 3, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 8 }}>{recipe.tag}</div>
+              <div style={{ fontSize: 36, marginBottom: 6 }}>{recipe.emoji}</div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, color: "white", margin: 0, fontFamily: "'Playfair Display', serif" }}>{recipe.title}</h2>
+              <p style={{ color: "#a8d5b5", marginTop: 6, fontSize: 13, fontStyle: "italic", fontFamily: "sans-serif" }}>{recipe.description}</p>
+            </div>
+            <div style={{ padding: "22px 28px" }}>
+              <div style={{ display: "flex", alignItems: "center", background: "#f4fbf6", borderRadius: 10, padding: "12px 16px", marginBottom: 22 }}>
+                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>Servings</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
+                  <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>−</button>
+                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>{servings}</span>
+                  <button onClick={() => setServings(s => s + 1)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+</button>
+                </div>
+              </div>
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Ingredients</div>
+                {recipe.ingredients.map((ing, i) => (
+                  <div key={ing.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < recipe.ingredients.length - 1 ? "1px solid #edf7f1" : "none" }}>
+                    <span style={{ fontFamily: "sans-serif", fontSize: 14, color: "#333" }}>{ing.name}</span>
+                    <span style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 800, color: "#2d5a3d", marginLeft: 12, flexShrink: 0 }}>{formatAmount(ing.amount, mult)}{ing.unit ? ` ${ing.unit}` : ""}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ borderTop: "1.5px solid #e8f5ec", marginBottom: 22 }} />
+              <div style={{ marginBottom: 22 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Instructions</div>
+                {recipe.steps.map((step, i) => {
+                  const isDone = done.has(step.id);
+                  return (
+                    <div key={step.id} style={{ display: "flex", gap: 14, padding: "13px 0", borderBottom: i < recipe.steps.length - 1 ? "1px solid #edf7f1" : "none", opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s" }}>
+                      <div onClick={() => toggleStep(step.id)} style={{ width: 26, height: 26, borderRadius: "50%", border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`, background: isDone ? "#2d5a3d" : "transparent", color: isDone ? "white" : "#2d5a3d", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginTop: 1, transition: "all 0.2s", fontFamily: "sans-serif" }}>
+                        {isDone ? "✓" : i + 1}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 800, color: "#1a3d28", marginBottom: 3 }}>{step.title}</div>
+                        <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#555", lineHeight: 1.65 }}>{step.content}</div>
+                        {step.timer && !isDone && <TimerWidget key={`${recipe.id}-${step.id}`} seconds={step.timer} />}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{ background: "#f4fbf6", borderLeft: "3px solid #2d5a3d", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 6 }}>Tips</div>
+                <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.7 }}>{recipe.notes}</p>
+              </div>
+              <button onClick={savePDF} style={{ width: "100%", padding: "13px", borderRadius: 10, background: "#2d5a3d", border: "none", color: "white", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}>
+                Save as PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function RecipeCard({ recipe, onClick }) {
+      return (
+        <div onClick={onClick}
+          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s" }}
+        >
+          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
+            <span style={{ fontSize: 30, lineHeight: 1 }}>{recipe.emoji}</span>
+            <div>
+              <div style={{ fontSize: 9, letterSpacing: 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 3 }}>{recipe.tag}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif" }}>{recipe.title}</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 18px 14px" }}>
+            <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#666", lineHeight: 1.5, marginBottom: 8 }}>{recipe.description}</p>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#999" }}>{recipe.ingredients.length} ingredients</div>
+              <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, color: "#2d5a3d" }}>View Recipe →</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function RecipeBinder() {
+      const [active, setActive] = useState(null);
+
+      const grouped = MEAL_ORDER.reduce((acc, type) => {
+        const recipes = ALL_RECIPES.filter(r => r.mealType === type);
+        if (recipes.length) acc[type] = recipes;
+        return acc;
+      }, {});
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#f0f7f2", padding: "28px 16px", fontFamily: "'Lato', sans-serif" }}>
+          <div style={{ maxWidth: 540, margin: "0 auto" }}>
+            {!active ? (
+              <React.Fragment>
+                <div style={{ marginBottom: 28, animation: "fadeUp 0.3s ease" }}>
+                  <div style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 800, letterSpacing: 3, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 6 }}>My</div>
+                  <h1 style={{ fontSize: 32, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", margin: 0 }}>Recipe Binder</h1>
+                  <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginTop: 6 }}>{ALL_RECIPES.length} recipes saved</p>
+                </div>
+
+                {Object.entries(grouped).map(([type, recipes], gi) => (
+                  <div key={type} style={{ marginBottom: 28, animation: `fadeUp ${0.35 + gi * 0.08}s ease` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                      <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 3, color: "#2d5a3d", textTransform: "uppercase" }}>{type}</div>
+                      <div style={{ flex: 1, height: 1, background: "#c8e6d4" }} />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {recipes.map(r => (
+                        <RecipeCard key={r.id} recipe={r} onClick={() => setActive(r)} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: 8, padding: "16px 20px", background: "white", borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", animation: "fadeUp 0.6s ease" }}>
+                  <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#888", margin: 0 }}>
+                    <strong style={{ color: "#2d5a3d" }}>Tip:</strong> Ask Claude to add a new recipe and it'll appear right here, organized by meal type.
+                  </p>
+                </div>
+              </React.Fragment>
+            ) : (
+              <RecipeView recipe={active} onBack={() => setActive(null)} />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<RecipeBinder />);
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch(err => console.log("SW reg failed:", err));
+      });
+    }
+  </script>
+</body>
+</html>
