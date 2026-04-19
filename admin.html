@@ -370,7 +370,7 @@
       if (missing.length) return "Recipe is missing required fields: " + missing.join(", ");
       if (typeof recipe.totalMinutes !== "number" || recipe.totalMinutes < 1) return "totalMinutes must be a positive number (total cook time in minutes).";
       if (typeof recipe.baseServings !== "number" || recipe.baseServings < 1) return "baseServings must be a positive number.";
-      if (!["Dinner", "Sides", "Snacks"].includes(recipe.mealType)) return `mealType must be "Dinner", "Sides", or "Snacks" — got "${recipe.mealType}".`;
+      if (!["Breakfast", "Lunch", "Dinner", "Sides", "Snacks", "Desserts", "Drinks"].includes(recipe.mealType)) return `mealType must be one of Breakfast, Lunch, Dinner, Sides, Snacks, Desserts, Drinks — got "${recipe.mealType}".`;
       if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length === 0) return "At least one ingredient is required.";
       if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return "At least one step is required.";
       return null;
@@ -522,7 +522,7 @@
       const tagInput = el("input", { type: "text", placeholder: "e.g. Dinner, Snack / Topping" });
 
       const mealTypeSelect = el("select");
-      ["Dinner", "Sides", "Snacks"].forEach(mt => {
+      ["Breakfast", "Lunch", "Dinner", "Sides", "Snacks", "Desserts", "Drinks"].forEach(mt => {
         const opt = el("option", { value: mt }, mt);
         mealTypeSelect.appendChild(opt);
       });
