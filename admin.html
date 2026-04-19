@@ -373,6 +373,15 @@
       if (!["Breakfast", "Lunch", "Dinner", "Sides", "Snacks", "Desserts", "Drinks"].includes(recipe.mealType)) return `mealType must be one of Breakfast, Lunch, Dinner, Sides, Snacks, Desserts, Drinks — got "${recipe.mealType}".`;
       if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length === 0) return "At least one ingredient is required.";
       if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return "At least one step is required.";
+      // Variants: optional, only allowed for Drinks
+      if (recipe.variants !== undefined && recipe.variants !== null) {
+        if (!Array.isArray(recipe.variants)) return "variants must be an array.";
+        if (recipe.variants.length > 0 && recipe.mealType !== "Drinks") return "variants are only allowed for Drinks recipes.";
+        for (let i = 0; i < recipe.variants.length; i++) {
+          const v = recipe.variants[i];
+          if (!v.name || typeof v.name !== "string") return `variants[${i}] must have a "name" (string).`;
+        }
+      }
       return null;
     }
 
@@ -703,6 +712,167 @@
         notesInput
       ));
 
+      // ── Variants section (Drinks only) ──
+      const variantsSection = el("div", { class: "group" });
+      variantsSection.style.display = "none";
+      const variantsState = []; // [{ name, description, ingredients: [], steps: [], notes, baseServings }]
+
+      function renderVariants() {
+        variantsSection.innerHTML = "";
+        variantsSection.appendChild(el("div", { class: "label" }, "Variants (Drinks only)"));
+        variantsSection.appendChild(el("div", { class: "help", style: "margin-bottom: 10px;" }, "Add alternate versions like shot form. Leave ingredients or steps empty to inherit from the main recipe."));
+
+        variantsState.forEach((variant, vidx) => {
+          const vSub = el("div", { class: "subform" });
+
+          const removeBtn = el("button", { class: "remove", onClick: () => {
+            variantsState.splice(vidx, 1);
+            renderVariants();
+          } }, "×");
+          vSub.appendChild(removeBtn);
+
+          vSub.appendChild(el("div", { class: "subform-label" }, `Variant ${vidx + 1}`));
+
+          const vNameLabel = el("div", { class: "mini-label" }, "Variant Name");
+          const vNameInput = el("input", { type: "text", placeholder: "e.g. Shot version" });
+          vNameInput.value = variant.name || "";
+          vNameInput.addEventListener("input", () => { variantsState[vidx].name = vNameInput.value; });
+
+          const vDescLabel = el("div", { class: "mini-label" }, "Variant Description (optional)");
+          const vDescInput = el("input", { type: "text", placeholder: "e.g. Same drink, served as a shot" });
+          vDescInput.value = variant.description || "";
+          vDescInput.addEventListener("input", () => { variantsState[vidx].description = vDescInput.value; });
+
+          const vServingsLabel = el("div", { class: "mini-label" }, "Variant Base Servings (optional)");
+          const vServingsInput = el("input", { type: "number", min: "1", placeholder: "Leave blank to use main" });
+          vServingsInput.value = variant.baseServings !== undefined && variant.baseServings !== "" ? variant.baseServings : "";
+          vServingsInput.addEventListener("input", () => { variantsState[vidx].baseServings = vServingsInput.value; });
+
+          vSub.appendChild(el("div", {}, vNameLabel, vNameInput));
+          vSub.appendChild(el("div", { style: "margin-top: 8px;" }, vDescLabel, vDescInput));
+          vSub.appendChild(el("div", { style: "margin-top: 8px;" }, vServingsLabel, vServingsInput));
+
+          // Variant ingredients
+          const vIngWrap = el("div", { style: "margin-top: 12px;" });
+          const vIngLabel = el("div", { class: "mini-label" }, "Variant Ingredients (leave empty to reuse main)");
+          vIngWrap.appendChild(vIngLabel);
+
+          function renderVariantIngredients() {
+            // Remove everything after the label
+            while (vIngWrap.childNodes.length > 1) vIngWrap.removeChild(vIngWrap.lastChild);
+            (variant.ingredients || []).forEach((ing, iidx) => {
+              const row = el("div", { class: "subform", style: "background: white; padding: 8px; margin-bottom: 6px;" });
+              const rmBtn = el("button", { class: "remove", onClick: () => {
+                variant.ingredients.splice(iidx, 1);
+                renderVariantIngredients();
+              } }, "×");
+              row.appendChild(rmBtn);
+              const nIn = el("input", { type: "text", placeholder: "ingredient name" });
+              nIn.value = ing.name || "";
+              nIn.addEventListener("input", () => { ing.name = nIn.value; });
+              const aIn = el("input", { type: "number", step: "any", placeholder: "amt" });
+              aIn.value = ing.amount !== undefined && ing.amount !== "" ? ing.amount : "";
+              aIn.addEventListener("input", () => { ing.amount = aIn.value; });
+              const uSel = el("select");
+              ["", "cup", "tbsp", "tsp", "oz", "lb", "g", "kg", "ml", "l", "pinch", "clove"].forEach(u => {
+                const opt = el("option", { value: u }, u || "(none)");
+                if (ing.unit === u || (ing.unit == null && u === "")) opt.selected = true;
+                uSel.appendChild(opt);
+              });
+              uSel.addEventListener("change", () => { ing.unit = uSel.value || null; });
+              row.appendChild(nIn);
+              row.appendChild(el("div", { class: "three-col", style: "margin-top: 6px;" },
+                el("div", {}, aIn),
+                el("div", {}, uSel),
+                el("div", {})
+              ));
+              vIngWrap.appendChild(row);
+            });
+            const addIngBtn = el("button", { class: "add-sub", style: "padding: 6px; font-size: 11px;", onClick: (e) => {
+              e.preventDefault();
+              if (!variant.ingredients) variant.ingredients = [];
+              variant.ingredients.push({ name: "", amount: "", unit: null });
+              renderVariantIngredients();
+            } }, "+ ADD VARIANT INGREDIENT");
+            vIngWrap.appendChild(addIngBtn);
+          }
+          renderVariantIngredients();
+          vSub.appendChild(vIngWrap);
+
+          // Variant steps
+          const vStepsWrap = el("div", { style: "margin-top: 12px;" });
+          const vStepsLabel = el("div", { class: "mini-label" }, "Variant Steps (leave empty to reuse main)");
+          vStepsWrap.appendChild(vStepsLabel);
+
+          function renderVariantSteps() {
+            while (vStepsWrap.childNodes.length > 1) vStepsWrap.removeChild(vStepsWrap.lastChild);
+            (variant.steps || []).forEach((step, sidx) => {
+              const row = el("div", { class: "subform", style: "background: white; padding: 8px; margin-bottom: 6px;" });
+              const rmBtn = el("button", { class: "remove", onClick: () => {
+                variant.steps.splice(sidx, 1);
+                renderVariantSteps();
+              } }, "×");
+              row.appendChild(rmBtn);
+              row.appendChild(el("div", { class: "mini-label", style: "margin-bottom: 4px;" }, `Step ${sidx + 1}`));
+              const tIn = el("input", { type: "text", placeholder: "step title" });
+              tIn.value = step.title || "";
+              tIn.addEventListener("input", () => { step.title = tIn.value; });
+              const cIn = el("textarea", { placeholder: "instructions" });
+              cIn.style.minHeight = "60px";
+              cIn.style.fontFamily = "'Lato', sans-serif";
+              cIn.style.fontSize = "12px";
+              cIn.value = step.content || "";
+              cIn.addEventListener("input", () => { step.content = cIn.value; });
+              const tmIn = el("input", { type: "number", min: "0", step: "0.5", placeholder: "timer min (optional)" });
+              tmIn.value = step.timer !== undefined && step.timer !== "" ? step.timer : "";
+              tmIn.addEventListener("input", () => { step.timer = tmIn.value; });
+              row.appendChild(tIn);
+              row.appendChild(el("div", { style: "margin-top: 6px;" }, cIn));
+              row.appendChild(el("div", { style: "margin-top: 6px;" }, tmIn));
+              vStepsWrap.appendChild(row);
+            });
+            const addStepBtn = el("button", { class: "add-sub", style: "padding: 6px; font-size: 11px;", onClick: (e) => {
+              e.preventDefault();
+              if (!variant.steps) variant.steps = [];
+              variant.steps.push({ title: "", content: "", timer: "" });
+              renderVariantSteps();
+            } }, "+ ADD VARIANT STEP");
+            vStepsWrap.appendChild(addStepBtn);
+          }
+          renderVariantSteps();
+          vSub.appendChild(vStepsWrap);
+
+          // Variant notes
+          const vNotesLabel = el("div", { class: "mini-label", style: "margin-top: 12px;" }, "Variant Notes (optional)");
+          const vNotesInput = el("textarea", { placeholder: "Variant-specific tips…" });
+          vNotesInput.style.minHeight = "50px";
+          vNotesInput.style.fontFamily = "'Lato', sans-serif";
+          vNotesInput.style.fontSize = "13px";
+          vNotesInput.value = variant.notes || "";
+          vNotesInput.addEventListener("input", () => { variantsState[vidx].notes = vNotesInput.value; });
+          vSub.appendChild(vNotesLabel);
+          vSub.appendChild(vNotesInput);
+
+          variantsSection.appendChild(vSub);
+        });
+
+        const addVariantBtn = el("button", { class: "add-sub", onClick: (e) => {
+          e.preventDefault();
+          variantsState.push({ name: "", description: "", ingredients: [], steps: [], notes: "", baseServings: "" });
+          renderVariants();
+        } }, "+ ADD VARIANT");
+        variantsSection.appendChild(addVariantBtn);
+      }
+      renderVariants();
+
+      function updateVariantsVisibility() {
+        variantsSection.style.display = mealTypeSelect.value === "Drinks" ? "block" : "none";
+      }
+      mealTypeSelect.addEventListener("change", updateVariantsVisibility);
+      updateVariantsVisibility();
+
+      body.appendChild(variantsSection);
+
       const statusBox = el("div");
 
       const saveBtn = el("button", { class: "btn", onClick: async () => {
@@ -738,6 +908,48 @@
             })),
           notes: notesInput.value.trim(),
         };
+
+        // Include variants only for Drinks
+        if (recipe.mealType === "Drinks" && variantsState.length > 0) {
+          recipe.variants = variantsState
+            .filter(v => v.name && v.name.trim())
+            .map(v => {
+              const obj = {
+                name: v.name.trim(),
+              };
+              if (v.description && v.description.trim()) obj.description = v.description.trim();
+              if (v.notes && v.notes.trim()) obj.notes = v.notes.trim();
+              if (v.baseServings !== "" && v.baseServings !== undefined && !isNaN(parseFloat(v.baseServings))) {
+                obj.baseServings = parseFloat(v.baseServings);
+              }
+              if (Array.isArray(v.ingredients) && v.ingredients.length > 0) {
+                const vIngs = v.ingredients
+                  .filter(i => i.name && i.name.trim())
+                  .map((ing, idx) => ({
+                    id: `vi${idx + 1}`,
+                    name: ing.name.trim(),
+                    amount: ing.amount === "" || ing.amount === null ? 0 : parseFloat(ing.amount),
+                    unit: ing.unit || null,
+                  }));
+                if (vIngs.length > 0) obj.ingredients = vIngs;
+              }
+              if (Array.isArray(v.steps) && v.steps.length > 0) {
+                const vSteps = v.steps
+                  .filter(s => (s.title && s.title.trim()) || (s.content && s.content.trim()))
+                  .map((step, idx) => ({
+                    id: `vs${idx + 1}`,
+                    title: (step.title || "").trim(),
+                    content: (step.content || "").trim(),
+                    timer: step.timer === "" || step.timer === null || step.timer === undefined || isNaN(parseFloat(step.timer))
+                      ? null
+                      : Math.round(parseFloat(step.timer) * 60),
+                  }));
+                if (vSteps.length > 0) obj.steps = vSteps;
+              }
+              return obj;
+            });
+          if (recipe.variants.length === 0) delete recipe.variants;
+        }
 
         // Required-field checks (beyond the shared validator, which needs populated arrays)
         const errors = [];
@@ -778,6 +990,9 @@
           stepsState.length = 0;
           stepsState.push({ title: "", content: "", timer: "" });
           renderSteps();
+          variantsState.length = 0;
+          renderVariants();
+          updateVariantsVisibility();
         });
 
         saveBtn.disabled = false;
