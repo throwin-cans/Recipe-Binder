@@ -29,6 +29,8 @@
     input, textarea { width: 100%; border: 1.5px solid #c8e6d4; border-radius: 8px; padding: 11px 13px; font-family: inherit; font-size: 14px; background: #f4fbf6; color: #1a3d28; }
     input:focus, textarea:focus { outline: none; border-color: #2d5a3d; background: white; }
     textarea { font-family: 'SF Mono', Menlo, Monaco, monospace; font-size: 12px; min-height: 280px; resize: vertical; line-height: 1.5; }
+    select { width: 100%; border: 1.5px solid #c8e6d4; border-radius: 8px; padding: 11px 13px; font-family: inherit; font-size: 14px; background: #f4fbf6; color: #1a3d28; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%232d5a3d' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px; }
+    select:focus { outline: none; border-color: #2d5a3d; background-color: white; }
     .group { margin-bottom: 18px; }
     .btn { width: 100%; padding: 13px; border-radius: 10px; background: #2d5a3d; border: none; color: white; font-size: 13px; font-weight: 800; letter-spacing: 1px; cursor: pointer; }
     .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -41,6 +43,19 @@
     .help code { background: #edf7f1; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #2d5a3d; }
     .row { display: flex; gap: 8px; margin-top: 10px; }
     .row .btn { flex: 1; padding: 10px; font-size: 12px; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .three-col { display: grid; grid-template-columns: 1.2fr 0.8fr 0.9fr; gap: 8px; align-items: start; }
+    .mode-card { background: #f4fbf6; border: 2px solid #c8e6d4; border-radius: 12px; padding: 20px 18px; cursor: pointer; transition: all 0.15s; display: flex; gap: 14px; align-items: center; }
+    .mode-card:hover, .mode-card:active { border-color: #2d5a3d; background: #eaf5ed; }
+    .mode-card .icon { width: 44px; height: 44px; border-radius: 10px; background: #2d5a3d; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .mode-card .title { font-size: 15px; font-weight: 800; color: #1a3d28; margin-bottom: 3px; font-family: 'Playfair Display', serif; }
+    .mode-card .desc { font-size: 12px; color: #5a8a6a; line-height: 1.45; }
+    .subform { background: #f9fcfa; border: 1px dashed #c8e6d4; border-radius: 10px; padding: 12px; margin-bottom: 10px; position: relative; }
+    .subform .remove { position: absolute; top: 8px; right: 8px; background: transparent; border: none; color: #b33; font-size: 18px; cursor: pointer; padding: 0 6px; line-height: 1; }
+    .subform-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #5a8a6a; text-transform: uppercase; margin-bottom: 8px; }
+    .add-sub { width: 100%; padding: 10px; border: 1.5px dashed #c8e6d4; background: white; color: #2d5a3d; border-radius: 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; cursor: pointer; font-family: inherit; }
+    .add-sub:hover { border-color: #2d5a3d; background: #f4fbf6; }
+    .mini-label { font-size: 10px; font-weight: 700; color: #5a8a6a; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
   </style>
 </head>
 <body>
@@ -289,15 +304,132 @@
       return r.json();
     }
 
+    // ──────────────────────────────────────────────
+    // Shared helpers
+    // ──────────────────────────────────────────────
+
+    function slugify(title) {
+      return (title || "").toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .slice(0, 40);
+    }
+
+    function lockLogoutRow() {
+      const logoutBtn = el("button", { class: "btn secondary", onClick: () => {
+        sessionStorage.setItem("rb_locked", "1");
+        location.reload();
+      } }, "Lock");
+      const changeTokenBtn = el("button", { class: "btn secondary", onClick: () => {
+        if (confirm("Clear the saved token? You'll be asked for a new one on the next unlock.")) {
+          localStorage.removeItem("rb_token");
+          CONFIG.token = "";
+          location.reload();
+        }
+      } }, "Change Token");
+      return el("div", { class: "row" }, logoutBtn, changeTokenBtn);
+    }
+
+    function validateRecipe(recipe) {
+      const required = ["id", "emoji", "tag", "mealType", "title", "description", "baseServings", "totalMinutes", "ingredients", "steps"];
+      const missing = required.filter(f => !(f in recipe));
+      if (missing.length) return "Recipe is missing required fields: " + missing.join(", ");
+      if (typeof recipe.totalMinutes !== "number" || recipe.totalMinutes < 1) return "totalMinutes must be a positive number (total cook time in minutes).";
+      if (typeof recipe.baseServings !== "number" || recipe.baseServings < 1) return "baseServings must be a positive number.";
+      if (!["Dinner", "Sides", "Snacks"].includes(recipe.mealType)) return `mealType must be "Dinner", "Sides", or "Snacks" — got "${recipe.mealType}".`;
+      if (!Array.isArray(recipe.ingredients) || recipe.ingredients.length === 0) return "At least one ingredient is required.";
+      if (!Array.isArray(recipe.steps) || recipe.steps.length === 0) return "At least one step is required.";
+      return null;
+    }
+
+    // Shared save flow — commits any validated recipe to GitHub
+    async function saveRecipe(newRecipe, statusBox, onSuccess) {
+      try {
+        const { json, sha } = await fetchRecipes();
+
+        // Resolve id collisions
+        if (json.recipes.some(r => r.id === newRecipe.id)) {
+          let n = 1;
+          while (json.recipes.some(r => r.id === newRecipe.id + "_" + n)) n++;
+          newRecipe.id = newRecipe.id + "_" + n;
+        }
+
+        json.recipes.push(newRecipe);
+
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("info", "Committing to GitHub…"));
+
+        await commitRecipes(json, sha, `Add recipe: ${newRecipe.title}`);
+
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("success",
+          `<strong>✓ Saved!</strong><br>"${newRecipe.title}" was added. GitHub Pages will rebuild in ~1 minute. Tap the refresh button in the app to see it.`
+        ));
+        if (onSuccess) onSuccess();
+      } catch (err) {
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("error", "Error: " + err.message));
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // Screen: Mode picker (choose JSON vs. Manual)
+    // ──────────────────────────────────────────────
+
     function renderMain() {
       body.innerHTML = "";
       document.getElementById("subtitle").textContent = `${CONFIG.owner}/${CONFIG.repo} · ${CONFIG.branch}`;
 
-      const textarea = el("textarea", { placeholder: 'Paste the recipe JSON from Claude here. It should start with {"id": "..." and include all fields (emoji, tag, mealType, title, description, baseServings, ingredients, steps, notes).' });
+      const jsonCard = el("div", { class: "mode-card", onClick: () => renderJsonMode() },
+        el("div", { class: "icon" },
+          (() => {
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute("width", "22"); svg.setAttribute("height", "22"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+            svg.innerHTML = '<path d="M8 5h8l4 4v10a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1h3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 13h6M9 17h4" stroke="white" stroke-width="2" stroke-linecap="round"/>';
+            return svg;
+          })()
+        ),
+        el("div", {},
+          el("div", { class: "title" }, "Paste JSON"),
+          el("div", { class: "desc" }, "Got a recipe JSON from Claude? Paste it in and save.")
+        )
+      );
 
+      const manualCard = el("div", { class: "mode-card", onClick: () => renderManualMode() },
+        el("div", { class: "icon" },
+          (() => {
+            const svgNS = "http://www.w3.org/2000/svg";
+            const svg = document.createElementNS(svgNS, "svg");
+            svg.setAttribute("width", "22"); svg.setAttribute("height", "22"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("fill", "none");
+            svg.innerHTML = '<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="white"/>';
+            return svg;
+          })()
+        ),
+        el("div", {},
+          el("div", { class: "title" }, "Fill Out Form"),
+          el("div", { class: "desc" }, "Type in a recipe step-by-step using a guided form.")
+        )
+      );
+
+      body.appendChild(el("div", { class: "label" }, "Choose How To Add"));
+      body.appendChild(el("div", { style: "display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px;" }, jsonCard, manualCard));
+      body.appendChild(lockLogoutRow());
+    }
+
+    // ──────────────────────────────────────────────
+    // Screen: JSON paste mode
+    // ──────────────────────────────────────────────
+
+    function renderJsonMode() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Paste JSON from Claude";
+
+      const backBtn = el("button", { class: "btn secondary", onClick: () => renderMain() }, "← Back");
+      const textarea = el("textarea", { placeholder: 'Paste the recipe JSON from Claude here. It should start with {"id": "..." and include all fields.' });
       const statusBox = el("div");
 
-      const addBtn = el("button", { class: "btn", onClick: async () => {
+      const saveBtn = el("button", { class: "btn", onClick: async () => {
         statusBox.innerHTML = "";
         let newRecipe;
         try {
@@ -307,71 +439,320 @@
           return;
         }
 
-        // Basic validation
-        const required = ["id", "emoji", "tag", "mealType", "title", "description", "baseServings", "totalMinutes", "ingredients", "steps"];
-        const missing = required.filter(f => !(f in newRecipe));
-        if (missing.length) {
-          statusBox.appendChild(status("error", "Recipe is missing required fields: " + missing.join(", ")));
-          return;
-        }
-        if (typeof newRecipe.totalMinutes !== "number" || newRecipe.totalMinutes < 1) {
-          statusBox.appendChild(status("error", "totalMinutes must be a positive number (total cook time in minutes)."));
-          return;
-        }
-        if (!["Dinner", "Sides", "Snacks"].includes(newRecipe.mealType)) {
-          statusBox.appendChild(status("error", `mealType must be "Dinner", "Sides", or "Snacks" — got "${newRecipe.mealType}".`));
+        const validationError = validateRecipe(newRecipe);
+        if (validationError) {
+          statusBox.appendChild(status("error", validationError));
           return;
         }
 
-        addBtn.disabled = true;
-        addBtn.textContent = "Saving…";
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving…";
         statusBox.appendChild(status("info", "Loading current recipes from GitHub…"));
 
-        try {
-          const { json, sha } = await fetchRecipes();
-
-          // Check for id collision
-          if (json.recipes.some(r => r.id === newRecipe.id)) {
-            // auto-rename to avoid conflict
-            let n = 1;
-            while (json.recipes.some(r => r.id === newRecipe.id + "_" + n)) n++;
-            newRecipe.id = newRecipe.id + "_" + n;
-          }
-
-          json.recipes.push(newRecipe);
-
-          statusBox.innerHTML = "";
-          statusBox.appendChild(status("info", "Committing to GitHub…"));
-
-          await commitRecipes(json, sha, `Add recipe: ${newRecipe.title}`);
-
-          statusBox.innerHTML = "";
-          statusBox.appendChild(status("success",
-            `<strong>✓ Saved!</strong><br>"${newRecipe.title}" was added. GitHub Pages will rebuild in ~1 minute. Force-close and reopen the app to see it.`
-          ));
+        await saveRecipe(newRecipe, statusBox, () => {
           textarea.value = "";
-        } catch (err) {
-          statusBox.innerHTML = "";
-          statusBox.appendChild(status("error", "Error: " + err.message));
-        } finally {
-          addBtn.disabled = false;
-          addBtn.textContent = "Save to GitHub";
-        }
+        });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save to GitHub";
       } }, "Save to GitHub");
 
-      const logoutBtn = el("button", { class: "btn secondary", onClick: () => {
-        localStorage.removeItem("rb_token");
-        location.reload();
-      } }, "Lock & Forget Token");
-
+      body.appendChild(el("div", { style: "margin-bottom: 12px;" }, backBtn));
       body.appendChild(el("div", { class: "group" },
         el("div", { class: "label" }, "Recipe JSON"),
         textarea,
         el("div", { class: "help" }, "Paste the JSON Claude gave you, then tap Save. The app expects one recipe object (not an array).")
       ));
-      body.appendChild(addBtn);
+      body.appendChild(saveBtn);
       body.appendChild(statusBox);
-      body.appendChild(el("div", { class: "row" }, logoutBtn));
+      body.appendChild(lockLogoutRow());
+    }
+
+    // ──────────────────────────────────────────────
+    // Screen: Manual form mode
+    // ──────────────────────────────────────────────
+
+    function renderManualMode() {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Fill out recipe details";
+
+      const backBtn = el("button", { class: "btn secondary", onClick: () => renderMain() }, "← Back");
+      body.appendChild(el("div", { style: "margin-bottom: 12px;" }, backBtn));
+
+      // Main fields
+      const emojiInput = el("input", { type: "text", placeholder: "🍝", maxlength: "4" });
+      emojiInput.style.textAlign = "center";
+      emojiInput.style.fontSize = "22px";
+
+      const titleInput = el("input", { type: "text", placeholder: "e.g. Cacio e Pepe" });
+      const tagInput = el("input", { type: "text", placeholder: "e.g. Dinner, Snack / Topping" });
+
+      const mealTypeSelect = el("select");
+      ["Dinner", "Sides", "Snacks"].forEach(mt => {
+        const opt = el("option", { value: mt }, mt);
+        mealTypeSelect.appendChild(opt);
+      });
+
+      const descInput = el("input", { type: "text", placeholder: "A short hook about the recipe." });
+      const servingsInput = el("input", { type: "number", min: "1", placeholder: "4", value: "4" });
+      const timeInput = el("input", { type: "number", min: "1", placeholder: "30" });
+      const notesInput = el("textarea", { placeholder: "Tips, substitutions, gotchas…" });
+      notesInput.style.minHeight = "80px";
+      notesInput.style.fontFamily = "'Lato', sans-serif";
+      notesInput.style.fontSize = "14px";
+
+      // Ingredients list
+      const ingredientsWrap = el("div", { id: "ingredients-wrap" });
+      const ingredientsState = []; // array of {name, amount, unit}
+
+      function renderIngredients() {
+        ingredientsWrap.innerHTML = "";
+        ingredientsState.forEach((ing, idx) => {
+          const sub = el("div", { class: "subform" });
+
+          const removeBtn = el("button", { class: "remove", onClick: () => {
+            ingredientsState.splice(idx, 1);
+            renderIngredients();
+          } }, "×");
+          if (ingredientsState.length > 1) sub.appendChild(removeBtn);
+
+          const nameLabel = el("div", { class: "mini-label" }, "Ingredient");
+          const nameInput = el("input", { type: "text", placeholder: "e.g. olive oil" });
+          nameInput.value = ing.name || "";
+          nameInput.addEventListener("input", () => { ingredientsState[idx].name = nameInput.value; });
+
+          const amountLabel = el("div", { class: "mini-label" }, "Amount");
+          const amountInput = el("input", { type: "number", step: "any", placeholder: "2" });
+          amountInput.value = ing.amount !== undefined ? ing.amount : "";
+          amountInput.addEventListener("input", () => { ingredientsState[idx].amount = amountInput.value; });
+
+          const unitLabel = el("div", { class: "mini-label" }, "Unit");
+          const unitSelect = el("select");
+          const units = ["", "cup", "tbsp", "tsp", "oz", "lb", "g", "kg", "ml", "l", "pinch", "clove"];
+          units.forEach(u => {
+            const opt = el("option", { value: u }, u || "(none)");
+            if (ing.unit === u || (ing.unit == null && u === "")) opt.selected = true;
+            unitSelect.appendChild(opt);
+          });
+          unitSelect.addEventListener("change", () => { ingredientsState[idx].unit = unitSelect.value || null; });
+
+          sub.appendChild(el("div", {},
+            nameLabel, nameInput,
+            el("div", { class: "three-col", style: "margin-top: 8px;" },
+              el("div", {}, amountLabel, amountInput),
+              el("div", {}, unitLabel, unitSelect),
+              el("div", {})
+            )
+          ));
+          ingredientsWrap.appendChild(sub);
+        });
+
+        const addBtn = el("button", { class: "add-sub", onClick: (e) => {
+          e.preventDefault();
+          ingredientsState.push({ name: "", amount: "", unit: null });
+          renderIngredients();
+        } }, "+ ADD INGREDIENT");
+        ingredientsWrap.appendChild(addBtn);
+      }
+
+      if (ingredientsState.length === 0) ingredientsState.push({ name: "", amount: "", unit: null });
+      renderIngredients();
+
+      // Steps list
+      const stepsWrap = el("div", { id: "steps-wrap" });
+      const stepsState = []; // array of {title, content, timer}
+
+      function renderSteps() {
+        stepsWrap.innerHTML = "";
+        stepsState.forEach((step, idx) => {
+          const sub = el("div", { class: "subform" });
+
+          const removeBtn = el("button", { class: "remove", onClick: () => {
+            stepsState.splice(idx, 1);
+            renderSteps();
+          } }, "×");
+          if (stepsState.length > 1) sub.appendChild(removeBtn);
+
+          sub.appendChild(el("div", { class: "subform-label" }, `Step ${idx + 1}`));
+
+          const titleLabel = el("div", { class: "mini-label" }, "Step Title");
+          const stepTitleInput = el("input", { type: "text", placeholder: "e.g. Boil the pasta" });
+          stepTitleInput.value = step.title || "";
+          stepTitleInput.addEventListener("input", () => { stepsState[idx].title = stepTitleInput.value; });
+
+          const contentLabel = el("div", { class: "mini-label" }, "Instructions");
+          const contentInput = el("textarea", { placeholder: "What to do in this step…" });
+          contentInput.style.minHeight = "70px";
+          contentInput.style.fontFamily = "'Lato', sans-serif";
+          contentInput.style.fontSize = "13px";
+          contentInput.value = step.content || "";
+          contentInput.addEventListener("input", () => { stepsState[idx].content = contentInput.value; });
+
+          const timerLabel = el("div", { class: "mini-label" }, "Timer (min, optional)");
+          const timerInput = el("input", { type: "number", min: "0", step: "0.5", placeholder: "e.g. 5" });
+          timerInput.value = step.timer !== null && step.timer !== undefined && step.timer !== "" ? step.timer : "";
+          timerInput.addEventListener("input", () => { stepsState[idx].timer = timerInput.value; });
+
+          sub.appendChild(el("div", {},
+            titleLabel, stepTitleInput,
+            el("div", { style: "margin-top: 8px;" }, contentLabel, contentInput),
+            el("div", { style: "margin-top: 8px;" }, timerLabel, timerInput)
+          ));
+          stepsWrap.appendChild(sub);
+        });
+
+        const addBtn = el("button", { class: "add-sub", onClick: (e) => {
+          e.preventDefault();
+          stepsState.push({ title: "", content: "", timer: "" });
+          renderSteps();
+        } }, "+ ADD STEP");
+        stepsWrap.appendChild(addBtn);
+      }
+
+      if (stepsState.length === 0) stepsState.push({ title: "", content: "", timer: "" });
+      renderSteps();
+
+      // Assemble form
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "two-col" },
+          el("div", {},
+            el("div", { class: "mini-label" }, "Emoji"),
+            emojiInput
+          ),
+          el("div", {},
+            el("div", { class: "mini-label" }, "Meal Type"),
+            mealTypeSelect
+          )
+        )
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "mini-label" }, "Recipe Title"),
+        titleInput
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "mini-label" }, "Tag (e.g. Dinner, Snack / Topping)"),
+        tagInput
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "mini-label" }, "Short Description"),
+        descInput
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "two-col" },
+          el("div", {},
+            el("div", { class: "mini-label" }, "Base Servings"),
+            servingsInput
+          ),
+          el("div", {},
+            el("div", { class: "mini-label" }, "Total Time (min)"),
+            timeInput
+          )
+        )
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Ingredients"),
+        ingredientsWrap
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Steps"),
+        stepsWrap
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "mini-label" }, "Tips / Notes"),
+        notesInput
+      ));
+
+      const statusBox = el("div");
+
+      const saveBtn = el("button", { class: "btn", onClick: async () => {
+        statusBox.innerHTML = "";
+
+        // Build the recipe object from form state
+        const recipe = {
+          id: slugify(titleInput.value) || "recipe",
+          emoji: emojiInput.value.trim() || "🍽️",
+          tag: tagInput.value.trim() || mealTypeSelect.value,
+          mealType: mealTypeSelect.value,
+          title: titleInput.value.trim(),
+          description: descInput.value.trim(),
+          baseServings: parseFloat(servingsInput.value),
+          totalMinutes: parseFloat(timeInput.value),
+          ingredients: ingredientsState
+            .filter(i => i.name && i.name.trim())
+            .map((ing, idx) => ({
+              id: `i${idx + 1}`,
+              name: ing.name.trim(),
+              amount: ing.amount === "" || ing.amount === null ? 0 : parseFloat(ing.amount),
+              unit: ing.unit || null,
+            })),
+          steps: stepsState
+            .filter(s => (s.title && s.title.trim()) || (s.content && s.content.trim()))
+            .map((step, idx) => ({
+              id: `s${idx + 1}`,
+              title: step.title.trim(),
+              content: step.content.trim(),
+              timer: step.timer === "" || step.timer === null || isNaN(parseFloat(step.timer))
+                ? null
+                : Math.round(parseFloat(step.timer) * 60),
+            })),
+          notes: notesInput.value.trim(),
+        };
+
+        // Required-field checks (beyond the shared validator, which needs populated arrays)
+        const errors = [];
+        if (!recipe.title) errors.push("Recipe Title is required.");
+        if (!recipe.description) errors.push("Short Description is required.");
+        if (!recipe.totalMinutes || recipe.totalMinutes < 1) errors.push("Total Time must be at least 1 minute.");
+        if (!recipe.baseServings || recipe.baseServings < 1) errors.push("Base Servings must be at least 1.");
+        if (recipe.ingredients.length === 0) errors.push("At least one ingredient is required.");
+        if (recipe.steps.length === 0) errors.push("At least one step is required.");
+
+        if (errors.length) {
+          statusBox.appendChild(status("error", errors.map(e => "• " + e).join("<br>")));
+          return;
+        }
+
+        const validationError = validateRecipe(recipe);
+        if (validationError) {
+          statusBox.appendChild(status("error", validationError));
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving…";
+        statusBox.appendChild(status("info", "Loading current recipes from GitHub…"));
+
+        await saveRecipe(recipe, statusBox, () => {
+          // Reset form after successful save
+          titleInput.value = "";
+          emojiInput.value = "";
+          tagInput.value = "";
+          descInput.value = "";
+          servingsInput.value = "4";
+          timeInput.value = "";
+          notesInput.value = "";
+          ingredientsState.length = 0;
+          ingredientsState.push({ name: "", amount: "", unit: null });
+          renderIngredients();
+          stepsState.length = 0;
+          stepsState.push({ title: "", content: "", timer: "" });
+          renderSteps();
+        });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Recipe";
+      } }, "Save Recipe");
+
+      body.appendChild(saveBtn);
+      body.appendChild(statusBox);
+      body.appendChild(lockLogoutRow());
     }
 
     // Route to the right screen
