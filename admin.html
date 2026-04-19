@@ -70,8 +70,8 @@
       branch: localStorage.getItem("rb_branch") || "main",
       // File path inside the repo
       path: "recipes.json",
-      // Your PAT — stored locally only
-      token: sessionStorage.getItem("rb_token") || "",
+      // Your PAT — stored locally, persists across app closes
+      token: localStorage.getItem("rb_token") || "",
       // Password hash for the admin page
       passwordHash: localStorage.getItem("rb_pw_hash") || "",
     };
@@ -229,7 +229,7 @@
         el("div", { class: "label" }, "Personal Access Token"),
         tokenInput,
         el("div", { class: "help" },
-          "Stored only for this session. Need one? See the README for step-by-step instructions. ",
+          "Stored on this device only. Need one? See the README for step-by-step instructions. ",
           el("strong", {}, "Scope: Contents = Read and write"),
           " for your repo only."
         )
@@ -237,7 +237,7 @@
 
       const btn = el("button", { class: "btn", onClick: async () => {
         if (!tokenInput.value.trim()) return;
-        sessionStorage.setItem("rb_token", tokenInput.value.trim());
+        localStorage.setItem("rb_token", tokenInput.value.trim());
         CONFIG.token = tokenInput.value.trim();
         // Verify token works
         body.querySelector(".status")?.remove();
@@ -360,9 +360,9 @@
       } }, "Save to GitHub");
 
       const logoutBtn = el("button", { class: "btn secondary", onClick: () => {
-        sessionStorage.removeItem("rb_token");
+        localStorage.removeItem("rb_token");
         location.reload();
-      } }, "Lock");
+      } }, "Lock & Forget Token");
 
       body.appendChild(el("div", { class: "group" },
         el("div", { class: "label" }, "Recipe JSON"),
