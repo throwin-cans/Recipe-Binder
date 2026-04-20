@@ -42,6 +42,20 @@
   <script type="text/babel" data-presets="react">
     const { useState, useRef, useEffect, useMemo } = React;
 
+    const DESKTOP_BREAKPOINT = 900;
+
+    function useIsDesktop() {
+      const [isDesktop, setIsDesktop] = useState(
+        typeof window !== "undefined" ? window.innerWidth >= DESKTOP_BREAKPOINT : false
+      );
+      useEffect(() => {
+        const onResize = () => setIsDesktop(window.innerWidth >= DESKTOP_BREAKPOINT);
+        window.addEventListener("resize", onResize);
+        return () => window.removeEventListener("resize", onResize);
+      }, []);
+      return isDesktop;
+    }
+
     const MEAL_ORDER = ["Breakfast", "Lunch", "Dinner", "Sides", "Snacks", "Desserts", "Drinks"];
     const TIME_BUCKETS = [
       { id: "all", label: "Any time" },
@@ -119,7 +133,7 @@
       );
     }
 
-    function RecipeView({ recipe, onBack, cart, onCartChange, onEdit, onDelete }) {
+    function RecipeView({ recipe, onBack, cart, onCartChange, onEdit, onDelete, desktopMode }) {
       const hasVariants = Array.isArray(recipe.variants) && recipe.variants.length > 0;
       const [variantIdx, setVariantIdx] = useState(-1); // -1 = main
       const activeVariant = variantIdx >= 0 ? recipe.variants[variantIdx] : null;
@@ -238,46 +252,94 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
       };
 
       return (
-        <div style={{ animation: "slideIn 0.25s ease" }}>
-          <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
-            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "sans-serif", padding: 0 }}>
-              ← Back to Binder
-            </button>
-            <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
-              {onEdit && (
-                <button
-                  onClick={() => onEdit(recipe)}
-                  aria-label="Edit recipe"
-                  style={{
-                    width: 34, height: 34, borderRadius: 8,
-                    border: "1.5px solid #c8e6d4", background: "white",
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  onClick={() => onDelete(recipe)}
-                  aria-label="Delete recipe"
-                  style={{
-                    width: 34, height: 34, borderRadius: 8,
-                    border: "1.5px solid #f4c1c1", background: "white",
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" stroke="#b33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-              )}
+        <div style={{
+          animation: desktopMode ? "fadeUp 0.2s ease" : "slideIn 0.25s ease",
+          padding: desktopMode ? "28px 32px 40px" : 0
+        }}>
+          {!desktopMode && (
+            <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+              <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "sans-serif", padding: 0 }}>
+                ← Back to Binder
+              </button>
+              <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(recipe)}
+                    aria-label="Edit recipe"
+                    style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: "1.5px solid #c8e6d4", background: "white",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(recipe)}
+                    aria-label="Delete recipe"
+                    style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: "1.5px solid #f4c1c1", background: "white",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" stroke="#b33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-          <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+          )}
+          <div style={{
+            background: "white",
+            borderRadius: 16,
+            overflow: "hidden",
+            boxShadow: desktopMode ? "0 2px 16px rgba(0,0,0,0.06)" : "0 4px 24px rgba(0,0,0,0.08)",
+            position: "relative"
+          }}>
+            {desktopMode && (
+              <div style={{ position: "absolute", top: 14, right: 14, zIndex: 3, display: "flex", gap: 8 }}>
+                {onEdit && (
+                  <button
+                    onClick={() => onEdit(recipe)}
+                    aria-label="Edit recipe"
+                    style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: "none",
+                      background: "rgba(255,255,255,0.2)", backdropFilter: "blur(6px)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(recipe)}
+                    aria-label="Delete recipe"
+                    style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      border: "none",
+                      background: "rgba(255,255,255,0.2)", backdropFilter: "blur(6px)",
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
             <div style={{ background: "linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%)", padding: "28px 28px 24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
                 <div style={{ fontSize: 10, letterSpacing: 3, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase" }}>{recipe.tag}</div>
@@ -287,254 +349,311 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "white", margin: 0, fontFamily: "'Playfair Display', serif" }}>{recipe.title}</h2>
               <p style={{ color: "#a8d5b5", marginTop: 6, fontSize: 13, fontStyle: "italic", fontFamily: "sans-serif" }}>{activeVariant ? activeVariant.description || recipe.description : recipe.description}</p>
             </div>
-            <div style={{ padding: "22px 28px" }}>
-              {hasVariants && (
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 8 }}>Version</div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    <button
-                      onClick={() => setVariantIdx(-1)}
-                      style={{
-                        padding: "7px 14px", borderRadius: 20,
-                        border: variantIdx === -1 ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
-                        background: variantIdx === -1 ? "#2d5a3d" : "white",
-                        color: variantIdx === -1 ? "white" : "#2d5a3d",
-                        fontSize: 12, fontWeight: 700, cursor: "pointer",
-                        fontFamily: "'Lato', sans-serif", whiteSpace: "nowrap"
-                      }}
-                    >Main</button>
-                    {recipe.variants.map((v, idx) => (
+            <div style={{ padding: desktopMode ? "28px 36px 36px" : "22px 28px" }}>
+              {(() => {
+                // Build each section as a variable, then compose for mobile or desktop
+                const variantSection = hasVariants ? (
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 8 }}>Version</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                       <button
-                        key={idx}
-                        onClick={() => setVariantIdx(idx)}
+                        onClick={() => setVariantIdx(-1)}
                         style={{
                           padding: "7px 14px", borderRadius: 20,
-                          border: variantIdx === idx ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
-                          background: variantIdx === idx ? "#2d5a3d" : "white",
-                          color: variantIdx === idx ? "white" : "#2d5a3d",
+                          border: variantIdx === -1 ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
+                          background: variantIdx === -1 ? "#2d5a3d" : "white",
+                          color: variantIdx === -1 ? "white" : "#2d5a3d",
                           fontSize: 12, fontWeight: 700, cursor: "pointer",
                           fontFamily: "'Lato', sans-serif", whiteSpace: "nowrap"
                         }}
-                      >{v.name}</button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              <div style={{ display: "flex", alignItems: "center", background: "#f4fbf6", borderRadius: 10, padding: "12px 16px", marginBottom: 22 }}>
-                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>Servings</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
-                  <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>−</button>
-                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>{servings}</span>
-                  <button onClick={() => setServings(s => s + 1)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+</button>
-                </div>
-              </div>
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Ingredients</div>
-                {activeRecipe.ingredients.map((ing, i) => {
-                  const hasSubs = Array.isArray(ing.substitutes) && ing.substitutes.length > 0;
-                  const isExpanded = expandedSubs.has(ing.id);
-                  return (
-                    <div key={ing.id} style={{ borderBottom: i < activeRecipe.ingredients.length - 1 ? "1px solid #edf7f1" : "none" }}>
-                      <div
-                        onClick={hasSubs ? () => toggleSubExpand(ing.id) : undefined}
-                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", cursor: hasSubs ? "pointer" : "default" }}
-                      >
-                        <span style={{ fontFamily: "sans-serif", fontSize: 14, color: "#333", display: "flex", alignItems: "center", gap: 6 }}>
-                          {ing.name}
-                          {hasSubs && (
-                            <span style={{
-                              fontSize: 9, fontWeight: 800, color: "#5a8a6a",
-                              background: "#edf7f1", padding: "2px 6px", borderRadius: 10,
-                              letterSpacing: 0.5, textTransform: "uppercase"
-                            }}>{isExpanded ? "▲" : "▼"} SUBS</span>
-                          )}
-                        </span>
-                        <span style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 800, color: "#2d5a3d", marginLeft: 12, flexShrink: 0 }}>{formatAmount(ing.amount, mult)}{ing.unit ? ` ${ing.unit}` : ""}</span>
-                      </div>
-                      {hasSubs && isExpanded && (
-                        <div style={{ padding: "2px 0 10px 0", fontFamily: "sans-serif", fontSize: 12, color: "#5a8a6a", fontStyle: "italic", lineHeight: 1.5 }}>
-                          Or: {ing.substitutes.join(", ")}
-                        </div>
-                      )}
+                      >Main</button>
+                      {recipe.variants.map((v, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setVariantIdx(idx)}
+                          style={{
+                            padding: "7px 14px", borderRadius: 20,
+                            border: variantIdx === idx ? "1.5px solid #2d5a3d" : "1.5px solid #c8e6d4",
+                            background: variantIdx === idx ? "#2d5a3d" : "white",
+                            color: variantIdx === idx ? "white" : "#2d5a3d",
+                            fontSize: 12, fontWeight: 700, cursor: "pointer",
+                            fontFamily: "'Lato', sans-serif", whiteSpace: "nowrap"
+                          }}
+                        >{v.name}</button>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-
-              {hasPrep && (
-                <div style={{ marginBottom: 22, background: "#f9fcfa", border: "1px solid #e8f5ec", borderRadius: 10, overflow: "hidden" }}>
-                  <div
-                    onClick={() => setShowPrep(v => !v)}
-                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer" }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ transform: showPrep ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
-                      <path d="M9 18l6-6-6-6" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase" }}>Mise en Place</div>
-                    <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#789", marginLeft: "auto" }}>{activeRecipe.prep.length} item{activeRecipe.prep.length !== 1 ? "s" : ""}</div>
                   </div>
-                  {showPrep && (
-                    <div style={{ padding: "0 16px 12px", animation: "slideDown 0.15s ease" }}>
-                      {activeRecipe.prep.map((p, i) => {
-                        const isDone = prepDone.has(p.id);
-                        return (
+                ) : null;
+
+                const servingsSection = (
+                  <div style={{ display: "flex", alignItems: "center", background: "#f4fbf6", borderRadius: 10, padding: "12px 16px", marginBottom: 22 }}>
+                    <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>Servings</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
+                      <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>−</button>
+                      <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>{servings}</span>
+                      <button onClick={() => setServings(s => s + 1)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+</button>
+                    </div>
+                  </div>
+                );
+
+                const ingredientsSection = (
+                  <div style={{ marginBottom: 22 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Ingredients</div>
+                    {activeRecipe.ingredients.map((ing, i) => {
+                      const hasSubs = Array.isArray(ing.substitutes) && ing.substitutes.length > 0;
+                      const isExpanded = expandedSubs.has(ing.id);
+                      return (
+                        <div key={ing.id} style={{ borderBottom: i < activeRecipe.ingredients.length - 1 ? "1px solid #edf7f1" : "none" }}>
                           <div
-                            key={p.id}
-                            onClick={() => togglePrepStep(p.id)}
-                            style={{
-                              display: "flex", gap: 10, padding: "8px 0",
-                              alignItems: "flex-start", cursor: "pointer",
-                              opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s",
-                              borderTop: i > 0 ? "1px solid #edf7f1" : "none"
-                            }}
+                            onClick={hasSubs ? () => toggleSubExpand(ing.id) : undefined}
+                            style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", cursor: hasSubs ? "pointer" : "default" }}
                           >
-                            <div style={{
-                              width: 20, height: 20, borderRadius: 4,
-                              border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`,
-                              background: isDone ? "#2d5a3d" : "transparent",
-                              color: "white",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              flexShrink: 0, marginTop: 1
-                            }}>
-                              {isDone && <span style={{ fontSize: 12, fontWeight: 800 }}>✓</span>}
-                            </div>
-                            <div style={{
-                              fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.55,
-                              textDecoration: isDone ? "line-through" : "none"
-                            }}>{p.content}</div>
+                            <span style={{ fontFamily: "sans-serif", fontSize: 14, color: "#333", display: "flex", alignItems: "center", gap: 6 }}>
+                              {ing.name}
+                              {hasSubs && (
+                                <span style={{
+                                  fontSize: 9, fontWeight: 800, color: "#5a8a6a",
+                                  background: "#edf7f1", padding: "2px 6px", borderRadius: 10,
+                                  letterSpacing: 0.5, textTransform: "uppercase"
+                                }}>{isExpanded ? "▲" : "▼"} SUBS</span>
+                              )}
+                            </span>
+                            <span style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 800, color: "#2d5a3d", marginLeft: 12, flexShrink: 0 }}>{formatAmount(ing.amount, mult)}{ing.unit ? ` ${ing.unit}` : ""}</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
+                          {hasSubs && isExpanded && (
+                            <div style={{ padding: "2px 0 10px 0", fontFamily: "sans-serif", fontSize: 12, color: "#5a8a6a", fontStyle: "italic", lineHeight: 1.5 }}>
+                              Or: {ing.substitutes.join(", ")}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
 
-              <div style={{ borderTop: "1.5px solid #e8f5ec", marginBottom: 22 }} />
-              <div style={{ marginBottom: 22 }}>
-                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Instructions</div>
-                {activeRecipe.steps.map((step, i) => {
-                  const isDone = done.has(step.id);
-                  return (
-                    <div key={step.id} style={{ display: "flex", gap: 14, padding: "13px 0", borderBottom: i < activeRecipe.steps.length - 1 ? "1px solid #edf7f1" : "none", opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s" }}>
-                      <div onClick={() => toggleStep(step.id)} style={{ width: 26, height: 26, borderRadius: "50%", border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`, background: isDone ? "#2d5a3d" : "transparent", color: isDone ? "white" : "#2d5a3d", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginTop: 1, transition: "all 0.2s", fontFamily: "sans-serif" }}>
-                        {isDone ? "✓" : i + 1}
+                const prepSection = hasPrep ? (
+                  <div style={{ marginBottom: 22, background: "#f9fcfa", border: "1px solid #e8f5ec", borderRadius: 10, overflow: "hidden" }}>
+                    <div
+                      onClick={() => setShowPrep(v => !v)}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer" }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ transform: showPrep ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
+                        <path d="M9 18l6-6-6-6" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase" }}>Mise en Place</div>
+                      <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#789", marginLeft: "auto" }}>{activeRecipe.prep.length} item{activeRecipe.prep.length !== 1 ? "s" : ""}</div>
+                    </div>
+                    {showPrep && (
+                      <div style={{ padding: "0 16px 12px", animation: "slideDown 0.15s ease" }}>
+                        {activeRecipe.prep.map((p, i) => {
+                          const isDone = prepDone.has(p.id);
+                          return (
+                            <div
+                              key={p.id}
+                              onClick={() => togglePrepStep(p.id)}
+                              style={{
+                                display: "flex", gap: 10, padding: "8px 0",
+                                alignItems: "flex-start", cursor: "pointer",
+                                opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s",
+                                borderTop: i > 0 ? "1px solid #edf7f1" : "none"
+                              }}
+                            >
+                              <div style={{
+                                width: 20, height: 20, borderRadius: 4,
+                                border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`,
+                                background: isDone ? "#2d5a3d" : "transparent",
+                                color: "white",
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                flexShrink: 0, marginTop: 1
+                              }}>
+                                {isDone && <span style={{ fontSize: 12, fontWeight: 800 }}>✓</span>}
+                              </div>
+                              <div style={{
+                                fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.55,
+                                textDecoration: isDone ? "line-through" : "none"
+                              }}>{p.content}</div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 800, color: "#1a3d28", marginBottom: 3 }}>{step.title}</div>
-                        <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#555", lineHeight: 1.65 }}>{step.content}</div>
-                        {step.timer && !isDone && <TimerWidget key={`${recipe.id}-${variantIdx}-${step.id}`} seconds={step.timer} />}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {activeRecipe.notes && (
-                <div style={{ background: "#f4fbf6", borderLeft: "3px solid #2d5a3d", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
-                  <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 6 }}>Tips</div>
-                  <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.7 }}>{activeRecipe.notes}</p>
-                </div>
-              )}
+                    )}
+                  </div>
+                ) : null;
 
-              {/* Personal Notes (local to this device) */}
-              <div style={{ background: "#fff8e1", borderLeft: "3px solid #d4a017", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
-                <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#8a6d1a", textTransform: "uppercase", marginBottom: 8 }}>
-                  My Notes
-                  <span style={{ fontSize: 9, fontWeight: 500, color: "#b58e2a", marginLeft: 6, letterSpacing: 1, textTransform: "none", fontStyle: "italic" }}>(saved on this device)</span>
-                </div>
-                <textarea
-                  value={personalNotes}
-                  onChange={e => savePersonalNotes(e.target.value)}
-                  placeholder="Things to remember next time — e.g. 'used thighs, great', 'add 5 more min', 'kids loved it'…"
-                  style={{
-                    width: "100%", minHeight: 60, border: "1px solid #e8d19e",
-                    borderRadius: 6, padding: "8px 10px",
-                    fontFamily: "'Lato', sans-serif", fontSize: 13, lineHeight: 1.55,
-                    background: "white", color: "#444", resize: "vertical",
-                    outline: "none"
-                  }}
-                />
-              </div>
+                const instructionsSection = (
+                  <div style={{ marginBottom: 22 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Instructions</div>
+                    {activeRecipe.steps.map((step, i) => {
+                      const isDone = done.has(step.id);
+                      return (
+                        <div key={step.id} style={{ display: "flex", gap: 14, padding: "13px 0", borderBottom: i < activeRecipe.steps.length - 1 ? "1px solid #edf7f1" : "none", opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s" }}>
+                          <div onClick={() => toggleStep(step.id)} style={{ width: 26, height: 26, borderRadius: "50%", border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`, background: isDone ? "#2d5a3d" : "transparent", color: isDone ? "white" : "#2d5a3d", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, marginTop: 1, transition: "all 0.2s", fontFamily: "sans-serif" }}>
+                            {isDone ? "✓" : i + 1}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 800, color: "#1a3d28", marginBottom: 3 }}>{step.title}</div>
+                            <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#555", lineHeight: 1.65 }}>{step.content}</div>
+                            {step.timer && !isDone && <TimerWidget key={`${recipe.id}-${variantIdx}-${step.id}`} seconds={step.timer} />}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
 
-              {/* Recipe Creator (optional) */}
-              {recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator.notes) && (
-                <div style={{ background: "#f4f1fb", borderLeft: "3px solid #7a5ca8", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
-                  <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a4387", textTransform: "uppercase", marginBottom: 6 }}>Recipe By</div>
-                  {recipe.creator.name && (
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: "#3e2e5a", marginBottom: recipe.creator.notes || recipe.creator.url ? 4 : 0 }}>
-                      {recipe.creator.name}
+                const tipsSection = activeRecipe.notes ? (
+                  <div style={{ background: "#f4fbf6", borderLeft: "3px solid #2d5a3d", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 6 }}>Tips</div>
+                    <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.7 }}>{activeRecipe.notes}</p>
+                  </div>
+                ) : null;
+
+                const personalNotesSection = (
+                  <div style={{ background: "#fff8e1", borderLeft: "3px solid #d4a017", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#8a6d1a", textTransform: "uppercase", marginBottom: 8 }}>
+                      My Notes
+                      <span style={{ fontSize: 9, fontWeight: 500, color: "#b58e2a", marginLeft: 6, letterSpacing: 1, textTransform: "none", fontStyle: "italic" }}>(saved on this device)</span>
                     </div>
-                  )}
-                  {recipe.creator.notes && (
-                    <div style={{ fontFamily: "sans-serif", fontSize: 12, color: "#6b5990", fontStyle: "italic", lineHeight: 1.55, marginBottom: recipe.creator.url ? 6 : 0 }}>
-                      {recipe.creator.notes}
-                    </div>
-                  )}
-                  {recipe.creator.url && (
-                    <a
-                      href={recipe.creator.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <textarea
+                      value={personalNotes}
+                      onChange={e => savePersonalNotes(e.target.value)}
+                      placeholder="Things to remember next time — e.g. 'used thighs, great', 'add 5 more min', 'kids loved it'…"
                       style={{
-                        display: "inline-flex", alignItems: "center", gap: 5,
-                        fontFamily: "sans-serif", fontSize: 12, fontWeight: 700,
-                        color: "#5a4387", textDecoration: "none",
-                        padding: "4px 10px", background: "white",
-                        border: "1px solid #d8cfea", borderRadius: 6,
-                        marginTop: 2
+                        width: "100%", minHeight: 60, border: "1px solid #e8d19e",
+                        borderRadius: 6, padding: "8px 10px",
+                        fontFamily: "'Lato', sans-serif", fontSize: 13, lineHeight: 1.55,
+                        background: "white", color: "#444", resize: "vertical",
+                        outline: "none", boxSizing: "border-box"
+                      }}
+                    />
+                  </div>
+                );
+
+                const creatorSection = (recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator.notes)) ? (
+                  <div style={{ background: "#f4f1fb", borderLeft: "3px solid #7a5ca8", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a4387", textTransform: "uppercase", marginBottom: 6 }}>Recipe By</div>
+                    {recipe.creator.name && (
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: "#3e2e5a", marginBottom: recipe.creator.notes || recipe.creator.url ? 4 : 0 }}>
+                        {recipe.creator.name}
+                      </div>
+                    )}
+                    {recipe.creator.notes && (
+                      <div style={{ fontFamily: "sans-serif", fontSize: 12, color: "#6b5990", fontStyle: "italic", lineHeight: 1.55, marginBottom: recipe.creator.url ? 6 : 0 }}>
+                        {recipe.creator.notes}
+                      </div>
+                    )}
+                    {recipe.creator.url && (
+                      <a
+                        href={recipe.creator.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: "inline-flex", alignItems: "center", gap: 5,
+                          fontFamily: "sans-serif", fontSize: 12, fontWeight: 700,
+                          color: "#5a4387", textDecoration: "none",
+                          padding: "4px 10px", background: "white",
+                          border: "1px solid #d8cfea", borderRadius: 6,
+                          marginTop: 2
+                        }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#5a4387" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        View source
+                      </a>
+                    )}
+                  </div>
+                ) : null;
+
+                const cartSection = (
+                  <div style={{ border: "1.5px solid #c8e6d4", borderRadius: 10, padding: "14px 16px", marginBottom: 14, background: inCart ? "#f4fbf6" : "white" }}>
+                    {seasoningCount > 0 && (
+                      <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, cursor: "pointer", fontSize: 13, color: "#2d5a3d", fontFamily: "sans-serif" }}>
+                        <input
+                          type="checkbox"
+                          checked={includeSeasonings}
+                          onChange={e => updateSeasoningsFlag(e.target.checked)}
+                          style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
+                        />
+                        <span><strong>Include seasonings</strong> in shopping list <span style={{ color: "#789", fontWeight: 400 }}>({seasoningCount} item{seasoningCount !== 1 ? "s" : ""})</span></span>
+                      </label>
+                    )}
+                    <button
+                      onClick={toggleCart}
+                      style={{
+                        width: "100%", padding: "12px", borderRadius: 8,
+                        background: inCart ? "white" : "#2d5a3d",
+                        color: inCart ? "#2d5a3d" : "white",
+                        border: inCart ? "1.5px solid #2d5a3d" : "none",
+                        fontSize: 13, fontWeight: 800, letterSpacing: 1,
+                        cursor: "pointer", fontFamily: "sans-serif",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 8
                       }}
                     >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#5a4387" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      View source
-                    </a>
-                  )}
-                </div>
-              )}
+                      {inCart ? (
+                        <React.Fragment>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2d5a3d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          IN CART — TAP TO REMOVE
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="21" r="1" fill="white"/><circle cx="20" cy="21" r="1" fill="white"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          ADD TO CART
+                        </React.Fragment>
+                      )}
+                    </button>
+                  </div>
+                );
 
-              {/* Cart section */}
-              <div style={{ border: "1.5px solid #c8e6d4", borderRadius: 10, padding: "14px 16px", marginBottom: 14, background: inCart ? "#f4fbf6" : "white" }}>
-                {seasoningCount > 0 && (
-                  <label style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, cursor: "pointer", fontSize: 13, color: "#2d5a3d", fontFamily: "sans-serif" }}>
-                    <input
-                      type="checkbox"
-                      checked={includeSeasonings}
-                      onChange={e => updateSeasoningsFlag(e.target.checked)}
-                      style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
-                    />
-                    <span><strong>Include seasonings</strong> in shopping list <span style={{ color: "#789", fontWeight: 400 }}>({seasoningCount} item{seasoningCount !== 1 ? "s" : ""})</span></span>
-                  </label>
-                )}
-                <button
-                  onClick={toggleCart}
-                  style={{
-                    width: "100%", padding: "12px", borderRadius: 8,
-                    background: inCart ? "white" : "#2d5a3d",
-                    color: inCart ? "#2d5a3d" : "white",
-                    border: inCart ? "1.5px solid #2d5a3d" : "none",
-                    fontSize: 13, fontWeight: 800, letterSpacing: 1,
-                    cursor: "pointer", fontFamily: "sans-serif",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8
-                  }}
-                >
-                  {inCart ? (
-                    <React.Fragment>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2d5a3d" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      IN CART — TAP TO REMOVE
-                    </React.Fragment>
-                  ) : (
-                    <React.Fragment>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="21" r="1" fill="white"/><circle cx="20" cy="21" r="1" fill="white"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      ADD TO CART
-                    </React.Fragment>
-                  )}
-                </button>
-              </div>
+                const pdfSection = (
+                  <button onClick={savePDF} style={{ width: "100%", padding: "13px", borderRadius: 10, background: "transparent", border: "1.5px solid #2d5a3d", color: "#2d5a3d", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}>
+                    Save as PDF
+                  </button>
+                );
 
-              <button onClick={savePDF} style={{ width: "100%", padding: "13px", borderRadius: 10, background: "transparent", border: "1.5px solid #2d5a3d", color: "#2d5a3d", fontSize: 13, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}>
-                Save as PDF
-              </button>
+                if (desktopMode) {
+                  // Desktop: version/servings controls on top, then two columns
+                  return (
+                    <React.Fragment>
+                      {variantSection}
+                      <div style={{ display: "flex", gap: 28, alignItems: "flex-start" }}>
+                        {/* Left: instructions + tips */}
+                        <div style={{ flex: "1 1 0", minWidth: 0 }}>
+                          {prepSection}
+                          {instructionsSection}
+                          {tipsSection}
+                        </div>
+                        {/* Right: servings, ingredients, notes, creator, cart, pdf */}
+                        <div style={{ flex: "0 0 320px", minWidth: 0 }}>
+                          {servingsSection}
+                          {ingredientsSection}
+                          {personalNotesSection}
+                          {creatorSection}
+                          {cartSection}
+                          {pdfSection}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  );
+                }
+
+                // Mobile: original single-column order
+                return (
+                  <React.Fragment>
+                    {variantSection}
+                    {servingsSection}
+                    {ingredientsSection}
+                    {prepSection}
+                    <div style={{ borderTop: "1.5px solid #e8f5ec", marginBottom: 22 }} />
+                    {instructionsSection}
+                    {tipsSection}
+                    {personalNotesSection}
+                    {creatorSection}
+                    {cartSection}
+                    {pdfSection}
+                  </React.Fragment>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -549,24 +668,31 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
       );
     }
 
-    function RecipeListCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit }) {
+    function RecipeListCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit, compact, isActive }) {
       return (
         <div onClick={onClick}
-          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s", position: "relative" }}
+          style={{
+            background: "white", borderRadius: 14, overflow: "hidden",
+            boxShadow: isActive ? "0 0 0 2px #2d5a3d, 0 4px 16px rgba(45,90,61,0.15)" : "0 2px 12px rgba(0,0,0,0.07)",
+            cursor: "pointer",
+            transition: "transform 0.15s, box-shadow 0.15s",
+            position: "relative"
+          }}
         >
-          <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: "flex", gap: 6 }}>
+          <div style={{ position: "absolute", top: compact ? 6 : 10, right: compact ? 6 : 10, zIndex: 2, display: "flex", gap: compact ? 4 : 6 }}>
             {onEdit && (
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(recipe); }}
                 aria-label="Edit recipe"
                 style={{
                   background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
-                  border: "none", borderRadius: "50%", width: 32, height: 32,
+                  border: "none", borderRadius: "50%",
+                  width: compact ? 24 : 32, height: compact ? 24 : 32,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   cursor: "pointer"
                 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <svg width={compact ? 11 : 14} height={compact ? 11 : 14} viewBox="0 0 24 24" fill="none">
                   <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -577,32 +703,43 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
               aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
               style={{
                 background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
-                border: "none", borderRadius: "50%", width: 32, height: 32,
+                border: "none", borderRadius: "50%",
+                width: compact ? 24 : 32, height: compact ? 24 : 32,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer"
               }}
             >
-              <StarIcon filled={isFavorite} size={18} />
+              <StarIcon filled={isFavorite} size={compact ? 13 : 18} />
             </button>
           </div>
-          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 88px 18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ fontSize: 30, lineHeight: 1 }}>{recipe.emoji}</span>
+          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: compact ? "12px 70px 12px 14px" : "18px 88px 18px 22px", display: "flex", alignItems: "center", gap: compact ? 10 : 14 }}>
+            <span style={{ fontSize: compact ? 22 : 30, lineHeight: 1 }}>{recipe.emoji}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 9, letterSpacing: 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 3 }}>{recipe.tag}</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif", lineHeight: 1.2 }}>{recipe.title}</div>
+              <div style={{ fontSize: compact ? 8 : 9, letterSpacing: compact ? 2 : 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 2 }}>{recipe.tag}</div>
+              <div style={{ fontSize: compact ? 13 : 15, fontWeight: 700, color: "white", fontFamily: "'Playfair Display', serif", lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{recipe.title}</div>
             </div>
-            <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
-              <div style={{ fontFamily: "sans-serif", fontSize: 9, color: "#a8d5b5", fontWeight: 800, letterSpacing: 1.5 }}>TIME</div>
-              <div style={{ fontFamily: "sans-serif", fontSize: 14, color: "white", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
-            </div>
+            {!compact && (
+              <div style={{ textAlign: "right", flexShrink: 0, marginRight: 4 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 9, color: "#a8d5b5", fontWeight: 800, letterSpacing: 1.5 }}>TIME</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 14, color: "white", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
+              </div>
+            )}
           </div>
-          <div style={{ padding: "12px 18px 14px" }}>
-            <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#666", lineHeight: 1.5, marginBottom: 8 }}>{recipe.description}</p>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#999" }}>{recipe.ingredients.length} ingredients</div>
-              <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, color: "#2d5a3d" }}>View Recipe →</div>
+          {!compact && (
+            <div style={{ padding: "12px 18px 14px" }}>
+              <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#666", lineHeight: 1.5, marginBottom: 8 }}>{recipe.description}</p>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#999" }}>{recipe.ingredients.length} ingredients</div>
+                <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, color: "#2d5a3d" }}>View Recipe →</div>
+              </div>
             </div>
-          </div>
+          )}
+          {compact && (
+            <div style={{ padding: "8px 14px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#999" }}>{recipe.ingredients.length} ingredients</div>
+              <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, color: "#2d5a3d" }}>{getTotalMinutes(recipe)}m</div>
+            </div>
+          )}
         </div>
       );
     }
@@ -1164,6 +1301,7 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
     // ── Cart View ──
 
     function RecipeBinder() {
+      const isDesktop = useIsDesktop();
       const [active, setActive] = useState(null);
       const [showCart, setShowCart] = useState(false);
       const [recipes, setRecipes] = useState([]);
@@ -1278,6 +1416,189 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
         return <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Lato', sans-serif", color: "#b33", padding: 20, textAlign: "center" }}>Could not load recipes: {error}</div>;
       }
 
+      // Render the list/header content (used in both layouts)
+      const listContent = (
+        <React.Fragment>
+          <div style={{ marginBottom: 18, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, animation: "fadeUp 0.3s ease" }}>
+            <div>
+              <div style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 800, letterSpacing: 3, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 4 }}>My</div>
+              <h1 style={{ fontSize: isDesktop ? 26 : 30, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", margin: 0 }}>Recipe Binder</h1>
+              <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#789", marginTop: 4 }}>
+                {filtered.length} of {recipes.length} recipes {search || activeFilterCount > 0 ? "shown" : "saved"}
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexShrink: 0 }}>
+              <button
+                onClick={() => setShowCart(true)}
+                aria-label="Cart"
+                style={{
+                  position: "relative",
+                  width: 40, height: 40, borderRadius: "50%",
+                  border: "1.5px solid #c8e6d4",
+                  background: cart.length > 0 ? "#2d5a3d" : "white",
+                  color: cart.length > 0 ? "white" : "#2d5a3d",
+                  cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
+                  <circle cx="20" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke={cart.length > 0 ? "white" : "#2d5a3d"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {cart.length > 0 && (
+                  <span style={{
+                    position: "absolute", top: -4, right: -4,
+                    background: "#f7b731", color: "#1a3d28",
+                    fontSize: 10, fontWeight: 800,
+                    minWidth: 18, height: 18, padding: "0 5px",
+                    borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "2px solid white"
+                  }}>{cart.length}</span>
+                )}
+              </button>
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                aria-label="Refresh"
+                style={{
+                  width: 40, height: 40, borderRadius: "50%",
+                  border: "1.5px solid #c8e6d4",
+                  background: "white",
+                  color: "#2d5a3d",
+                  cursor: refreshing ? "default" : "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
+                  <path d="M21 12a9 9 0 11-3-6.7L21 8" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M21 3v5h-5" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <ControlsBar
+            search={search} onSearch={setSearch}
+            mealFilter={mealFilter} onMealFilter={setMealFilter}
+            timeFilter={timeFilter} onTimeFilter={setTimeFilter}
+            view={view} onViewChange={setView}
+            showFilters={showFilters} onToggleFilters={() => setShowFilters(v => !v)}
+            activeFilterCount={activeFilterCount}
+            favoritesOnly={favoritesOnly} onToggleFavoritesOnly={() => setFavoritesOnly(v => !v)}
+            favoritesCount={favorites.size}
+          />
+
+          {filtered.length === 0 ? (
+            <div style={{ background: "white", borderRadius: 14, padding: "40px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>🔍</div>
+              <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: "#1a3d28", marginBottom: 6 }}>No recipes match</div>
+              <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginBottom: 16 }}>Try different search terms or clear your filters.</div>
+              <button
+                onClick={() => { setSearch(""); setMealFilter("all"); setTimeFilter("all"); setFavoritesOnly(false); }}
+                style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
+              >CLEAR ALL</button>
+            </div>
+          ) : view === "grid" && !isDesktop ? (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, animation: "fadeUp 0.35s ease" }}>
+              {filtered.map(r => (
+                <RecipeGridCard
+                  key={r.id}
+                  recipe={r}
+                  onClick={() => setActive(r)}
+                  isFavorite={favorites.has(r.id)}
+                  onToggleFavorite={() => toggleFavorite(r.id)}
+                  onEdit={handleEdit}
+                />
+              ))}
+            </div>
+          ) : (
+            Object.entries(grouped).map(([type, list], gi) => (
+              <div key={type} style={{ marginBottom: 22, animation: `fadeUp ${0.35 + gi * 0.08}s ease` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 3, color: "#2d5a3d", textTransform: "uppercase" }}>{type}</div>
+                  <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#789" }}>{list.length}</div>
+                  <div style={{ flex: 1, height: 1, background: "#c8e6d4" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {list.map(r => (
+                    <RecipeListCard
+                      key={r.id}
+                      recipe={r}
+                      onClick={() => setActive(r)}
+                      isFavorite={favorites.has(r.id)}
+                      onToggleFavorite={() => toggleFavorite(r.id)}
+                      onEdit={handleEdit}
+                      compact={isDesktop}
+                      isActive={isDesktop && active && active.id === r.id}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </React.Fragment>
+      );
+
+      // Desktop layout: sidebar + recipe panel
+      if (isDesktop) {
+        return (
+          <div style={{ minHeight: "100vh", background: "#f0f7f2", fontFamily: "'Lato', sans-serif" }}>
+            {showCart ? (
+              <div style={{ maxWidth: 900, margin: "0 auto", padding: "24px 20px" }}>
+                <CartView
+                  cart={cart}
+                  recipes={recipes}
+                  onBack={() => setShowCart(false)}
+                  onCartChange={updateCart}
+                  checks={cartChecks}
+                  onChecksChange={updateCartChecks}
+                />
+              </div>
+            ) : (
+              <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+                {/* Left: list panel */}
+                <div style={{
+                  width: "33%", minWidth: 320, maxWidth: 480,
+                  overflowY: "auto", padding: "24px 20px",
+                  borderRight: "1px solid #d8ebdf",
+                  background: "#f7fbf8"
+                }}>
+                  {listContent}
+                </div>
+                {/* Right: recipe panel */}
+                <div style={{ flex: 1, overflowY: "auto" }}>
+                  {active ? (
+                    <RecipeView
+                      recipe={active}
+                      onBack={() => setActive(null)}
+                      cart={cart}
+                      onCartChange={updateCart}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      desktopMode={true}
+                    />
+                  ) : (
+                    <div style={{
+                      height: "100%", display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center",
+                      color: "#9aafa2", textAlign: "center", padding: "40px"
+                    }}>
+                      <div style={{ fontSize: 64, marginBottom: 16, opacity: 0.4 }}>📖</div>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: "#5a8a6a", marginBottom: 8 }}>Choose a recipe</div>
+                      <div style={{ fontSize: 13, maxWidth: 320, lineHeight: 1.5 }}>Pick a recipe from the list on the left to see the instructions, ingredients, and everything else you need to cook it.</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // Mobile layout (original)
       return (
         <div style={{ minHeight: "100vh", background: "#f0f7f2", padding: "24px 14px", fontFamily: "'Lato', sans-serif" }}>
           <div style={{ maxWidth: 540, margin: "0 auto" }}>
@@ -1291,126 +1612,7 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
                 onChecksChange={updateCartChecks}
               />
             ) : !active ? (
-              <React.Fragment>
-                <div style={{ marginBottom: 18, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, animation: "fadeUp 0.3s ease" }}>
-                  <div>
-                    <div style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 800, letterSpacing: 3, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 4 }}>My</div>
-                    <h1 style={{ fontSize: 30, fontWeight: 700, color: "#1a3d28", fontFamily: "'Playfair Display', serif", margin: 0 }}>Recipe Binder</h1>
-                    <p style={{ fontFamily: "sans-serif", fontSize: 12, color: "#789", marginTop: 4 }}>
-                      {filtered.length} of {recipes.length} recipes {search || activeFilterCount > 0 ? "shown" : "saved"}
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6, flexShrink: 0 }}>
-                    <button
-                      onClick={() => setShowCart(true)}
-                      aria-label="Cart"
-                      style={{
-                        position: "relative",
-                        width: 40, height: 40, borderRadius: "50%",
-                        border: "1.5px solid #c8e6d4",
-                        background: cart.length > 0 ? "#2d5a3d" : "white",
-                        color: cart.length > 0 ? "white" : "#2d5a3d",
-                        cursor: "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
-                      }}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <circle cx="9" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
-                        <circle cx="20" cy="21" r="1" fill={cart.length > 0 ? "white" : "#2d5a3d"} />
-                        <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke={cart.length > 0 ? "white" : "#2d5a3d"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      {cart.length > 0 && (
-                        <span style={{
-                          position: "absolute", top: -4, right: -4,
-                          background: "#f7b731", color: "#1a3d28",
-                          fontSize: 10, fontWeight: 800,
-                          minWidth: 18, height: 18, padding: "0 5px",
-                          borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center",
-                          border: "2px solid white"
-                        }}>{cart.length}</span>
-                      )}
-                    </button>
-                    <button
-                      onClick={handleRefresh}
-                      disabled={refreshing}
-                      aria-label="Refresh"
-                      style={{
-                        width: 40, height: 40, borderRadius: "50%",
-                        border: "1.5px solid #c8e6d4",
-                        background: "white",
-                        color: "#2d5a3d",
-                        cursor: refreshing ? "default" : "pointer",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
-                      }}
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ animation: refreshing ? "spin 0.8s linear infinite" : "none" }}>
-                        <path d="M21 12a9 9 0 11-3-6.7L21 8" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M21 3v5h-5" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <ControlsBar
-                  search={search} onSearch={setSearch}
-                  mealFilter={mealFilter} onMealFilter={setMealFilter}
-                  timeFilter={timeFilter} onTimeFilter={setTimeFilter}
-                  view={view} onViewChange={setView}
-                  showFilters={showFilters} onToggleFilters={() => setShowFilters(v => !v)}
-                  activeFilterCount={activeFilterCount}
-                  favoritesOnly={favoritesOnly} onToggleFavoritesOnly={() => setFavoritesOnly(v => !v)}
-                  favoritesCount={favorites.size}
-                />
-
-                {filtered.length === 0 ? (
-                  <div style={{ background: "white", borderRadius: 14, padding: "40px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-                    <div style={{ fontSize: 32, marginBottom: 10 }}>🔍</div>
-                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, color: "#1a3d28", marginBottom: 6 }}>No recipes match</div>
-                    <div style={{ fontFamily: "sans-serif", fontSize: 13, color: "#789", marginBottom: 16 }}>Try different search terms or clear your filters.</div>
-                    <button
-                      onClick={() => { setSearch(""); setMealFilter("all"); setTimeFilter("all"); setFavoritesOnly(false); }}
-                      style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
-                    >CLEAR ALL</button>
-                  </div>
-                ) : view === "grid" ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, animation: "fadeUp 0.35s ease" }}>
-                    {filtered.map(r => (
-                      <RecipeGridCard
-                        key={r.id}
-                        recipe={r}
-                        onClick={() => setActive(r)}
-                        isFavorite={favorites.has(r.id)}
-                        onToggleFavorite={() => toggleFavorite(r.id)}
-                        onEdit={handleEdit}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  Object.entries(grouped).map(([type, list], gi) => (
-                    <div key={type} style={{ marginBottom: 22, animation: `fadeUp ${0.35 + gi * 0.08}s ease` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                        <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 3, color: "#2d5a3d", textTransform: "uppercase" }}>{type}</div>
-                        <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#789" }}>{list.length}</div>
-                        <div style={{ flex: 1, height: 1, background: "#c8e6d4" }} />
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {list.map(r => (
-                          <RecipeListCard
-                            key={r.id}
-                            recipe={r}
-                            onClick={() => setActive(r)}
-                            isFavorite={favorites.has(r.id)}
-                            onToggleFavorite={() => toggleFavorite(r.id)}
-                            onEdit={handleEdit}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </React.Fragment>
+              listContent
             ) : (
               <RecipeView recipe={active} onBack={() => setActive(null)} cart={cart} onCartChange={updateCart} onEdit={handleEdit} onDelete={handleDelete} />
             )}
