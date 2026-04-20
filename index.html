@@ -744,10 +744,14 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
       );
     }
 
-    function RecipeGridCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit }) {
+    function RecipeGridCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit, isActive }) {
       return (
         <div onClick={onClick}
-          style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", flexDirection: "column", position: "relative" }}
+          style={{
+            background: "white", borderRadius: 14, overflow: "hidden",
+            boxShadow: isActive ? "0 0 0 2px #2d5a3d, 0 4px 16px rgba(45,90,61,0.15)" : "0 2px 12px rgba(0,0,0,0.07)",
+            cursor: "pointer", display: "flex", flexDirection: "column", position: "relative"
+          }}
         >
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
@@ -1501,8 +1505,15 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
                 style={{ padding: "9px 18px", borderRadius: 8, border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 12, fontWeight: 800, letterSpacing: 1, cursor: "pointer", fontFamily: "sans-serif" }}
               >CLEAR ALL</button>
             </div>
-          ) : view === "grid" && !isDesktop ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", gap: 10, animation: "fadeUp 0.35s ease" }}>
+          ) : view === "grid" ? (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: isDesktop
+                ? (active ? "repeat(2, 1fr)" : "repeat(auto-fill, minmax(180px, 1fr))")
+                : "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: 10,
+              animation: "fadeUp 0.35s ease"
+            }}>
               {filtered.map(r => (
                 <RecipeGridCard
                   key={r.id}
@@ -1511,6 +1522,7 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
                   isFavorite={favorites.has(r.id)}
                   onToggleFavorite={() => toggleFavorite(r.id)}
                   onEdit={handleEdit}
+                  isActive={isDesktop && active && active.id === r.id}
                 />
               ))}
             </div>
@@ -1544,6 +1556,9 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
 
       // Desktop layout: sidebar + recipe panel
       if (isDesktop) {
+        // Special case: grid mode with no active recipe — use full width
+        const useFullWidthGrid = view === "grid" && !active;
+
         return (
           <div style={{ minHeight: "100vh", background: "#f0f7f2", fontFamily: "'Lato', sans-serif" }}>
             {showCart ? (
@@ -1556,6 +1571,10 @@ ${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator
                   checks={cartChecks}
                   onChecksChange={updateCartChecks}
                 />
+              </div>
+            ) : useFullWidthGrid ? (
+              <div style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 32px", height: "100vh", overflowY: "auto" }}>
+                {listContent}
               </div>
             ) : (
               <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
