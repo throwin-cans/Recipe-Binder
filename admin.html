@@ -664,6 +664,7 @@
 
       const descInput = el("input", { type: "text", placeholder: "A short hook about the recipe." });
       const servingsInput = el("input", { type: "number", min: "1", placeholder: "4", value: "4" });
+      const servingUnitInput = el("input", { type: "text", placeholder: "e.g. loaf, slice, ball (optional)" });
       const timeInput = el("input", { type: "number", min: "1", placeholder: "30" });
       const notesInput = el("textarea", { placeholder: "Tips, substitutions, gotchas…" });
       notesInput.style.minHeight = "80px";
@@ -678,6 +679,7 @@
         mealTypeSelect.value = editing.mealType || "Dinner";
         descInput.value = editing.description || "";
         servingsInput.value = editing.baseServings || "";
+        servingUnitInput.value = editing.servingUnit || "";
         timeInput.value = editing.totalMinutes || "";
         notesInput.value = editing.notes || "";
       }
@@ -906,6 +908,11 @@
             el("div", { class: "mini-label" }, "Total Time (min)"),
             timeInput
           )
+        ),
+        el("div", { style: "margin-top: 10px;" },
+          el("div", { class: "mini-label" }, "Serving Unit (optional)"),
+          servingUnitInput,
+          el("div", { class: "help", style: "margin-top: 4px;" }, "Words like \"loaf\", \"slice\", \"cookie\", \"ball\", \"cocktail\". Leave blank for \"servings\". Auto-pluralizes.")
         )
       ));
 
@@ -1155,6 +1162,10 @@
           notes: notesInput.value.trim(),
         };
 
+        // Include servingUnit if set
+        const unitVal = servingUnitInput.value.trim();
+        if (unitVal) recipe.servingUnit = unitVal;
+
         // Include prep items only if any have content
         const prepItems = prepState
           .filter(p => p.content && p.content.trim())
@@ -1266,6 +1277,7 @@
           tagInput.value = "";
           descInput.value = "";
           servingsInput.value = "4";
+          servingUnitInput.value = "";
           timeInput.value = "";
           notesInput.value = "";
           ingredientsState.length = 0;

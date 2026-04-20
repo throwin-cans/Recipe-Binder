@@ -68,6 +68,32 @@
       return r > 0 ? `${m}m ${r}s` : `${m}m`;
     }
 
+    // Irregular plural overrides for common recipe serving units
+    const PLURAL_OVERRIDES = {
+      "loaf": "loaves",
+      "half": "halves",
+      "leaf": "leaves",
+      "tomato": "tomatoes",
+      "potato": "potatoes",
+    };
+
+    function pluralize(count, singular) {
+      if (!singular) return "";
+      if (count === 1) return singular;
+      const lower = singular.toLowerCase();
+      if (PLURAL_OVERRIDES[lower]) {
+        // Preserve capitalization: only lowercase input known, so just return the override
+        return PLURAL_OVERRIDES[lower];
+      }
+      // Default: add "s" unless it already ends with "s"
+      if (lower.endsWith("s")) return singular;
+      // Handle "y" ending: party → parties
+      if (lower.endsWith("y") && !["a","e","i","o","u"].includes(lower[lower.length - 2])) {
+        return singular.slice(0, -1) + "ies";
+      }
+      return singular + "s";
+    }
+
     function getTotalMinutes(recipe) {
       if (typeof recipe.totalMinutes === "number") return recipe.totalMinutes;
       const totalSec = (recipe.steps || []).reduce((a, s) => a + (s.timer || 0), 0);
@@ -219,7 +245,7 @@
   .notes{background:#f2faf5;border-left:3px solid #2d5a3d;padding:12px 16px;margin-top:18px;font-size:13px;line-height:1.6}
 </style></head><body>
 <h1>${recipe.emoji} ${recipe.title}${activeVariant ? ` — ${activeVariant.name}` : ""}</h1>
-<p class="meta">Servings: ${servings} &nbsp;·&nbsp; ${recipe.tag} &nbsp;·&nbsp; ~${getTotalMinutes(recipe)} min</p>
+<p class="meta">${activeRecipe.servingUnit ? "Yields" : "Servings"}: ${servings}${activeRecipe.servingUnit ? " " + pluralize(servings, activeRecipe.servingUnit) : ""} &nbsp;·&nbsp; ${recipe.tag} &nbsp;·&nbsp; ~${getTotalMinutes(recipe)} min</p>
 <hr>
 <h2>Ingredients</h2>
 ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span class="amt">${formatAmount(i.amount, mult)}${i.unit ? " " + i.unit : ""}</span></div>`).join("")}
@@ -318,10 +344,12 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", background: "#f4fbf6", borderRadius: 10, padding: "12px 16px", marginBottom: 22 }}>
-                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>Servings</span>
+                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>{activeRecipe.servingUnit ? "Yields" : "Servings"}</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
                   <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>−</button>
-                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>{servings}</span>
+                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>
+                    {servings}{activeRecipe.servingUnit ? ` ${pluralize(servings, activeRecipe.servingUnit)}` : ""}
+                  </span>
                   <button onClick={() => setServings(s => s + 1)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+</button>
                 </div>
               </div>
