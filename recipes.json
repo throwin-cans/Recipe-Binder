@@ -545,6 +545,133 @@
           "notes": "Equal parts — makes about a 2.25 oz shot, which is a bit generous. Scale to 0.5 oz each if you want a smaller shot."
         }
       ]
+    },
+    {
+      "id": "zucchini-bread",
+      "emoji": "🥒",
+      "tag": "Quick Bread",
+      "mealType": "Desserts",
+      "title": "Zucchini Bread",
+      "description": "Moist, cinnamon-spiced zucchini bread — a family recipe classic.",
+      "baseServings": 12,
+      "totalMinutes": 75,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "eggs",
+          "amount": 3,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "vegetable oil",
+          "amount": 1,
+          "unit": "cup",
+          "substitutes": [
+            "canola oil",
+            "melted butter",
+            "applesauce (for lighter version)"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "sugar",
+          "amount": 2,
+          "unit": "cup",
+          "substitutes": [
+            "1.5 cups brown sugar for deeper flavor"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "shredded zucchini (optionally mix with shredded apple)",
+          "amount": 3,
+          "unit": "cup"
+        },
+        {
+          "id": "i5",
+          "name": "vanilla extract",
+          "amount": 2,
+          "unit": "tsp"
+        },
+        {
+          "id": "i6",
+          "name": "baking soda",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i7",
+          "name": "baking powder",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i8",
+          "name": "cinnamon",
+          "amount": 3,
+          "unit": "tsp"
+        },
+        {
+          "id": "i9",
+          "name": "all-purpose flour",
+          "amount": 3,
+          "unit": "cup"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Preheat oven to 350°F"
+        },
+        {
+          "id": "p2",
+          "content": "Grease and flour a loaf pan (or two smaller loaf pans)"
+        },
+        {
+          "id": "p3",
+          "content": "Shred the zucchini (no need to squeeze out liquid — keeps it moist)"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Beat the eggs",
+          "content": "In a large bowl, beat the eggs until they're light and foamy.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Mix in wet ingredients",
+          "content": "Add the oil, shredded zucchini, sugar, and vanilla to the eggs. Mix well until everything is evenly combined.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Combine dry ingredients",
+          "content": "In a separate bowl, whisk together the flour, baking soda, baking powder, and cinnamon.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Combine wet and dry",
+          "content": "Add the dry ingredients to the wet mixture. Mix just until blended — do not overmix. Overmixing develops gluten and makes the bread tough.",
+          "timer": null
+        },
+        {
+          "id": "s5",
+          "title": "Pour and bake",
+          "content": "Pour the batter into the greased and floured pan. Bake at 350°F for 1 hour, or until a toothpick inserted in the center comes out clean.",
+          "timer": 3600
+        },
+        {
+          "id": "s6",
+          "title": "Cool",
+          "content": "Let the bread cool in the pan for 10 minutes, then turn out onto a wire rack to cool completely before slicing.",
+          "timer": 600
+        }
+      ],
+      "notes": "Sometimes add a little shredded apple to the zucchini to make a total of 3 cups — adds natural sweetness and extra moisture. For extra texture, fold in 1 cup of chopped walnuts or pecans at step 4. Bread stays moist for 3-4 days wrapped at room temp, or freeze for up to 3 months."
     }
   ]
 }
