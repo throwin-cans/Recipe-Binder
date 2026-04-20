@@ -954,6 +954,142 @@
         "name": "Classic cocktail",
         "notes": "Invented 1941, Chatham Hotel, NYC"
       }
+    },
+    {
+      "id": "spicy-cucumber-margarita",
+      "emoji": "🥒",
+      "tag": "Cocktail",
+      "mealType": "Drinks",
+      "title": "Spicy Cucumber Margarita",
+      "description": "Crisp cucumber, fresh lime, and a jalapeño kick — the most refreshing margarita you'll make all summer.",
+      "baseServings": 1,
+      "totalMinutes": 5,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "cucumber slices (about 3 thin rounds)",
+          "amount": 3,
+          "unit": null
+        },
+        {
+          "id": "i2",
+          "name": "fresh jalapeño slices (seeds in for more heat)",
+          "amount": 2,
+          "unit": null,
+          "substitutes": [
+            "1 slice for mild, 3+ for extra spicy; serrano for more heat"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "blanco tequila",
+          "amount": 2,
+          "unit": "oz",
+          "substitutes": [
+            "reposado for smoother, oakier flavor"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "freshly squeezed lime juice",
+          "amount": 1,
+          "unit": "oz"
+        },
+        {
+          "id": "i5",
+          "name": "orange liqueur (Cointreau or Triple Sec)",
+          "amount": 0.5,
+          "unit": "oz"
+        },
+        {
+          "id": "i6",
+          "name": "agave syrup",
+          "amount": 0.5,
+          "unit": "oz",
+          "substitutes": [
+            "simple syrup, or honey thinned with warm water"
+          ]
+        },
+        {
+          "id": "i7",
+          "name": "Tajín or chili-lime salt (for rim)",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i8",
+          "name": "lime wedge (for rimming glass and garnish)",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i9",
+          "name": "cucumber slice and jalapeño slice for garnish",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i10",
+          "name": "ice (plus crushed ice for glass)",
+          "amount": 1,
+          "unit": "cup"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Slice the cucumber (need 3 thin rounds for muddling + 1 for garnish)"
+        },
+        {
+          "id": "p2",
+          "content": "Slice the jalapeño (2-3 slices for muddling + 1 for garnish — wear gloves or wash hands after)"
+        },
+        {
+          "id": "p3",
+          "content": "Juice the lime (need about 1 oz)"
+        },
+        {
+          "id": "p4",
+          "content": "Pour Tajín onto a small plate for rimming"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Rim the glass",
+          "content": "Run a lime wedge around the rim of a rocks glass, then dip the rim into the Tajín. Set aside.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Muddle",
+          "content": "In a cocktail shaker, muddle the cucumber slices and jalapeño slices for about 15 seconds — press firmly to release juices and heat. Don't over-muddle or it gets bitter.",
+          "timer": 15
+        },
+        {
+          "id": "s3",
+          "title": "Shake",
+          "content": "Add tequila, lime juice, orange liqueur, agave, and ice to the shaker. Shake vigorously for 15 seconds until the shaker is frosty.",
+          "timer": 15
+        },
+        {
+          "id": "s4",
+          "title": "Strain",
+          "content": "Fill the rimmed glass with fresh ice. Double-strain (use a fine mesh strainer if you have one) into the glass to catch cucumber and jalapeño bits.",
+          "timer": null
+        },
+        {
+          "id": "s5",
+          "title": "Garnish and serve",
+          "content": "Float a cucumber slice and jalapeño slice on top. Serve immediately.",
+          "timer": null
+        }
+      ],
+      "notes": "Adjust heat by the number of jalapeño slices. 1 slice = mild warmth, 2 = pleasant kick, 3+ = noticeably spicy. Keep the seeds in for more heat, remove them for just the flavor.\n\n**Fresh lime juice is non-negotiable.** Bottled lime juice will make this drink taste flat and chemical.\n\n**Double-straining matters:** Single-straining leaves little flecks of pepper and cucumber pulp in the drink. Fine mesh strainer gives you a clean, crisp finish.\n\n**Make it a batch:** Multiply everything except the Tajín and garnishes. Muddle cucumber and jalapeño in a pitcher with the tequila, let it sit 30 minutes for stronger flavor, then strain and mix with lime, orange liqueur, and agave. Serve over ice with rimmed glasses.\n\n**Spicy salt rim upgrade:** Mix Tajín with flaky sea salt 50/50 for a better texture.\n\n**Mocktail version:** Skip the tequila and orange liqueur. Replace with 2 oz cucumber water (muddled cucumber + sparkling water) and 1 oz fresh orange juice. Keep everything else the same.",
+      "creator": {
+        "name": "Classic cocktail",
+        "notes": "Modern spicy twist on the margarita"
+      }
     }
   ]
 }
