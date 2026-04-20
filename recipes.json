@@ -691,10 +691,85 @@
           "title": "Cool",
           "content": "Let the bread cool in the pan for 10 minutes, then turn out onto a wire rack to cool completely before slicing.",
           "timer": 600
+        },
+        {
+          "id": "s13",
+          "title": "Beat the eggs",
+          "content": "In a large bowl, beat the eggs until they're light and foamy.",
+          "timer": null
+        },
+        {
+          "id": "s14",
+          "title": "Mix in wet ingredients",
+          "content": "Add the oil, shredded zucchini, sugar, and vanilla to the eggs. Mix well until everything is evenly combined.",
+          "timer": null
+        },
+        {
+          "id": "s15",
+          "title": "Combine dry ingredients",
+          "content": "In a separate bowl, whisk together the flour, baking soda, baking powder, and cinnamon.",
+          "timer": null
+        },
+        {
+          "id": "s16",
+          "title": "Combine wet and dry",
+          "content": "Add the dry ingredients to the wet mixture. Mix just until blended — do not overmix. Overmixing develops gluten and makes the bread tough.",
+          "timer": null
+        },
+        {
+          "id": "s17",
+          "title": "Pour and bake",
+          "content": "Pour the batter into the greased and floured pan. Bake at 350°F for 1 hour, or until a toothpick inserted in the center comes out clean.",
+          "timer": 3600
+        },
+        {
+          "id": "s18",
+          "title": "Cool",
+          "content": "Let the bread cool in the pan for 10 minutes, then turn out onto a wire rack to cool completely before slicing.",
+          "timer": 600
+        },
+        {
+          "id": "s19",
+          "title": "Beat the eggs",
+          "content": "In a large bowl, beat the eggs until they're light and foamy.",
+          "timer": null
+        },
+        {
+          "id": "s20",
+          "title": "Mix in wet ingredients",
+          "content": "Add the oil, shredded zucchini, sugar, and vanilla to the eggs. Mix well until everything is evenly combined.",
+          "timer": null
+        },
+        {
+          "id": "s21",
+          "title": "Combine dry ingredients",
+          "content": "In a separate bowl, whisk together the flour, baking soda, baking powder, and cinnamon.",
+          "timer": null
+        },
+        {
+          "id": "s22",
+          "title": "Combine wet and dry",
+          "content": "Add the dry ingredients to the wet mixture. Mix just until blended — do not overmix. Overmixing develops gluten and makes the bread tough.",
+          "timer": null
+        },
+        {
+          "id": "s23",
+          "title": "Pour and bake",
+          "content": "Pour the batter into the greased and floured pan. Bake at 350°F for 1 hour, or until a toothpick inserted in the center comes out clean.",
+          "timer": 3600
+        },
+        {
+          "id": "s24",
+          "title": "Cool",
+          "content": "Let the bread cool in the pan for 10 minutes, then turn out onto a wire rack to cool completely before slicing.",
+          "timer": 600
         }
       ],
       "notes": "Sometimes add a little shredded apple to the zucchini to make a total of 3 cups — adds natural sweetness and extra moisture. For extra texture, fold in 1 cup of chopped walnuts or pecans at step 4. Bread stays moist for 3-4 days wrapped at room temp, or freeze for up to 3 months.",
-      "servingUnit": "Loaf",
+      "creator": {
+        "name": "Tricia Ginis",
+        "notes": "Moms Recipe"
+      },
       "prep": [
         {
           "id": "p1",
