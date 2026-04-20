@@ -222,7 +222,7 @@
             localStorage.setItem("rb_trusted_device", "1");
           }
           if (CONFIG.token) {
-            renderMain();
+            routeAfterUnlock();
           } else {
             renderTokenEntry();
           }
@@ -276,7 +276,7 @@
             headers: { Authorization: `Bearer ${CONFIG.token}` }
           });
           if (!r.ok) throw new Error(r.status === 401 ? "Token rejected (401). Check permissions." : `GitHub returned ${r.status}`);
-          renderMain();
+          routeAfterUnlock();
         } catch (err) {
           s.className = "status error";
           s.innerHTML = "Could not verify: " + err.message;
@@ -416,6 +416,124 @@
     }
 
     // ──────────────────────────────────────────────
+    // Screen: Delete flow (from ?action=delete)
+    // ──────────────────────────────────────────────
+
+    async function renderDeleteFlow(recipeId) {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Delete a recipe";
+
+      const statusBox = el("div");
+      body.appendChild(statusBox);
+      statusBox.appendChild(status("info", "Loading recipe…"));
+
+      let recipe, json, sha;
+      try {
+        const res = await fetchRecipes();
+        json = res.json; sha = res.sha;
+        recipe = json.recipes.find(r => r.id === recipeId);
+      } catch (err) {
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("error", "Could not load recipes: " + err.message));
+        const backBtn = el("button", { class: "btn secondary", style: "margin-top: 14px;", onClick: () => {
+          clearPendingAction();
+          renderMain();
+        } }, "← Back");
+        body.appendChild(backBtn);
+        return;
+      }
+
+      if (!recipe) {
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("error", `Recipe "${recipeId}" not found. It may have already been deleted.`));
+        const backBtn = el("button", { class: "btn secondary", style: "margin-top: 14px;", onClick: () => {
+          clearPendingAction();
+          renderMain();
+        } }, "← Back");
+        body.appendChild(backBtn);
+        return;
+      }
+
+      // Clear status, show confirm UI
+      statusBox.innerHTML = "";
+      const preview = el("div", { style: "background: #fdecec; border-left: 3px solid #b33; padding: 14px 16px; border-radius: 0 8px 8px 0; margin-bottom: 18px;" });
+      preview.innerHTML = `<div style="font-size: 10px; font-weight: 800; letter-spacing: 2px; color: #7a1a1a; text-transform: uppercase; margin-bottom: 8px;">Deleting</div>
+        <div style="font-family: 'Playfair Display', serif; font-size: 18px; color: #1a3d28; margin-bottom: 4px;">${recipe.emoji} ${recipe.title}</div>
+        <div style="font-size: 12px; color: #5a8a6a;">${recipe.mealType} · ${recipe.ingredients.length} ingredients · ${recipe.steps.length} steps</div>
+        <div style="font-size: 12px; color: #7a1a1a; margin-top: 10px; font-style: italic;">This can't be undone.</div>`;
+      body.appendChild(preview);
+
+      const deleteBtn = el("button", { class: "btn", style: "background: #b33;", onClick: async () => {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = "Deleting…";
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("info", "Committing to GitHub…"));
+        try {
+          const updated = { ...json, recipes: json.recipes.filter(r => r.id !== recipeId) };
+          await commitRecipes(updated, sha, `Delete recipe: ${recipe.title}`);
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("success", `<strong>✓ Deleted.</strong><br>"${recipe.title}" removed. GitHub Pages will rebuild in ~1 minute.`));
+          deleteBtn.style.display = "none";
+          cancelBtn.textContent = "Done";
+          clearPendingAction();
+        } catch (err) {
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("error", "Delete failed: " + err.message));
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = "Delete Permanently";
+        }
+      } }, "Delete Permanently");
+
+      const cancelBtn = el("button", { class: "btn secondary", style: "margin-top: 10px;", onClick: () => {
+        clearPendingAction();
+        renderMain();
+      } }, "Cancel");
+
+      body.appendChild(deleteBtn);
+      body.appendChild(cancelBtn);
+      body.appendChild(statusBox);
+      body.appendChild(lockLogoutRow());
+    }
+
+    // ──────────────────────────────────────────────
+    // Screen: Edit flow (from ?action=edit) — loads recipe and renders form prefilled
+    // ──────────────────────────────────────────────
+
+    async function renderEditFlow(recipeId) {
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = "Editing recipe…";
+
+      const statusBox = el("div");
+      body.appendChild(statusBox);
+      statusBox.appendChild(status("info", "Loading recipe…"));
+
+      try {
+        const { json, sha } = await fetchRecipes();
+        const recipe = json.recipes.find(r => r.id === recipeId);
+        if (!recipe) {
+          statusBox.innerHTML = "";
+          statusBox.appendChild(status("error", `Recipe "${recipeId}" not found.`));
+          const backBtn = el("button", { class: "btn secondary", style: "margin-top: 14px;", onClick: () => {
+            clearPendingAction();
+            renderMain();
+          } }, "← Back");
+          body.appendChild(backBtn);
+          return;
+        }
+        // Hand off to the manual form pre-filled with this recipe
+        renderManualMode({ editing: recipe, editSha: sha, editJson: json });
+      } catch (err) {
+        statusBox.innerHTML = "";
+        statusBox.appendChild(status("error", "Could not load: " + err.message));
+        const backBtn = el("button", { class: "btn secondary", style: "margin-top: 14px;", onClick: () => {
+          clearPendingAction();
+          renderMain();
+        } }, "← Back");
+        body.appendChild(backBtn);
+      }
+    }
+
+    // ──────────────────────────────────────────────
     // Screen: Mode picker (choose JSON vs. Manual)
     // ──────────────────────────────────────────────
 
@@ -515,11 +633,19 @@
     // Screen: Manual form mode
     // ──────────────────────────────────────────────
 
-    function renderManualMode() {
-      body.innerHTML = "";
-      document.getElementById("subtitle").textContent = "Fill out recipe details";
+    function renderManualMode(options = {}) {
+      const editing = options.editing || null; // existing recipe object
+      const editSha = options.editSha || null;
+      const editJson = options.editJson || null;
+      const isEdit = !!editing;
 
-      const backBtn = el("button", { class: "btn secondary", onClick: () => renderMain() }, "← Back");
+      body.innerHTML = "";
+      document.getElementById("subtitle").textContent = isEdit ? `Editing "${editing.title}"` : "Fill out recipe details";
+
+      const backBtn = el("button", { class: "btn secondary", onClick: () => {
+        if (isEdit) clearPendingAction();
+        renderMain();
+      } }, "← Back");
       body.appendChild(el("div", { style: "margin-bottom: 12px;" }, backBtn));
 
       // Main fields
@@ -543,6 +669,18 @@
       notesInput.style.minHeight = "80px";
       notesInput.style.fontFamily = "'Lato', sans-serif";
       notesInput.style.fontSize = "14px";
+
+      // Pre-fill main fields if editing
+      if (isEdit) {
+        emojiInput.value = editing.emoji || "";
+        titleInput.value = editing.title || "";
+        tagInput.value = editing.tag || "";
+        mealTypeSelect.value = editing.mealType || "Dinner";
+        descInput.value = editing.description || "";
+        servingsInput.value = editing.baseServings || "";
+        timeInput.value = editing.totalMinutes || "";
+        notesInput.value = editing.notes || "";
+      }
 
       // Ingredients list
       const ingredientsWrap = el("div", { id: "ingredients-wrap" });
@@ -579,27 +717,83 @@
           });
           unitSelect.addEventListener("change", () => { ingredientsState[idx].unit = unitSelect.value || null; });
 
+          const subsLabel = el("div", { class: "mini-label" }, "Substitutes (optional, comma-separated)");
+          const subsInput = el("input", { type: "text", placeholder: "e.g. grapeseed oil, avocado oil" });
+          subsInput.value = Array.isArray(ing.substitutes) ? ing.substitutes.join(", ") : "";
+          subsInput.addEventListener("input", () => {
+            const raw = subsInput.value;
+            ingredientsState[idx].substitutes = raw
+              .split(",")
+              .map(s => s.trim())
+              .filter(s => s.length > 0);
+          });
+
           sub.appendChild(el("div", {},
             nameLabel, nameInput,
             el("div", { class: "three-col", style: "margin-top: 8px;" },
               el("div", {}, amountLabel, amountInput),
               el("div", {}, unitLabel, unitSelect),
               el("div", {})
-            )
+            ),
+            el("div", { style: "margin-top: 8px;" }, subsLabel, subsInput)
           ));
           ingredientsWrap.appendChild(sub);
         });
 
         const addBtn = el("button", { class: "add-sub", onClick: (e) => {
           e.preventDefault();
-          ingredientsState.push({ name: "", amount: "", unit: null });
+          ingredientsState.push({ name: "", amount: "", unit: null, substitutes: [] });
           renderIngredients();
         } }, "+ ADD INGREDIENT");
         ingredientsWrap.appendChild(addBtn);
       }
 
-      if (ingredientsState.length === 0) ingredientsState.push({ name: "", amount: "", unit: null });
+      if (isEdit && Array.isArray(editing.ingredients)) {
+        editing.ingredients.forEach(ing => {
+          ingredientsState.push({
+            name: ing.name || "",
+            amount: ing.amount !== undefined ? ing.amount : "",
+            unit: ing.unit || null,
+            substitutes: Array.isArray(ing.substitutes) ? [...ing.substitutes] : [],
+          });
+        });
+      }
+      if (ingredientsState.length === 0) ingredientsState.push({ name: "", amount: "", unit: null, substitutes: [] });
       renderIngredients();
+
+      // Prep list (optional)
+      const prepWrap = el("div", { id: "prep-wrap" });
+      const prepState = []; // array of { content }
+
+      function renderPrep() {
+        prepWrap.innerHTML = "";
+        prepState.forEach((p, idx) => {
+          const sub = el("div", { class: "subform", style: "background: #f9fcfa; padding: 8px;" });
+          const removeBtn = el("button", { class: "remove", onClick: () => {
+            prepState.splice(idx, 1);
+            renderPrep();
+          } }, "×");
+          sub.appendChild(removeBtn);
+          const label = el("div", { class: "mini-label" }, `Prep item ${idx + 1}`);
+          const input = el("input", { type: "text", placeholder: "e.g. Dice 1 onion" });
+          input.value = p.content || "";
+          input.addEventListener("input", () => { prepState[idx].content = input.value; });
+          sub.appendChild(label);
+          sub.appendChild(input);
+          prepWrap.appendChild(sub);
+        });
+        const addBtn = el("button", { class: "add-sub", onClick: (e) => {
+          e.preventDefault();
+          prepState.push({ content: "" });
+          renderPrep();
+        } }, "+ ADD PREP ITEM");
+        prepWrap.appendChild(addBtn);
+      }
+
+      if (isEdit && Array.isArray(editing.prep)) {
+        editing.prep.forEach(p => prepState.push({ content: p.content || "" }));
+      }
+      renderPrep();
 
       // Steps list
       const stepsWrap = el("div", { id: "steps-wrap" });
@@ -652,6 +846,24 @@
         stepsWrap.appendChild(addBtn);
       }
 
+      if (isEdit && Array.isArray(editing.steps)) {
+        editing.steps.forEach(step => {
+          stepsState.push({
+            title: step.title || "",
+            content: step.content || "",
+            timer: step.timer ? (step.timer / 60) : "",
+          });
+        });
+      }
+      if (isEdit && Array.isArray(editing.steps)) {
+        editing.steps.forEach(step => {
+          stepsState.push({
+            title: step.title || "",
+            content: step.content || "",
+            timer: step.timer ? (step.timer / 60) : "", // seconds → minutes for the form
+          });
+        });
+      }
       if (stepsState.length === 0) stepsState.push({ title: "", content: "", timer: "" });
       renderSteps();
 
@@ -703,6 +915,12 @@
       ));
 
       body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Prep (optional)"),
+        el("div", { class: "help", style: "margin-bottom: 8px;" }, "Quick prep items shown as a mise en place checklist. Useful for dicing, measuring, preheating."),
+        prepWrap
+      ));
+
+      body.appendChild(el("div", { class: "group" },
         el("div", { class: "label" }, "Steps"),
         stepsWrap
       ));
@@ -716,6 +934,27 @@
       const variantsSection = el("div", { class: "group" });
       variantsSection.style.display = "none";
       const variantsState = []; // [{ name, description, ingredients: [], steps: [], notes, baseServings }]
+
+      if (isEdit && Array.isArray(editing.variants)) {
+        editing.variants.forEach(v => {
+          variantsState.push({
+            name: v.name || "",
+            description: v.description || "",
+            notes: v.notes || "",
+            baseServings: v.baseServings !== undefined ? v.baseServings : "",
+            ingredients: Array.isArray(v.ingredients) ? v.ingredients.map(i => ({
+              name: i.name || "",
+              amount: i.amount !== undefined ? i.amount : "",
+              unit: i.unit || null,
+            })) : [],
+            steps: Array.isArray(v.steps) ? v.steps.map(s => ({
+              title: s.title || "",
+              content: s.content || "",
+              timer: s.timer ? (s.timer / 60) : "",
+            })) : [],
+          });
+        });
+      }
 
       function renderVariants() {
         variantsSection.innerHTML = "";
@@ -880,7 +1119,7 @@
 
         // Build the recipe object from form state
         const recipe = {
-          id: slugify(titleInput.value) || "recipe",
+          id: isEdit ? editing.id : (slugify(titleInput.value) || "recipe"),
           emoji: emojiInput.value.trim() || "🍽️",
           tag: tagInput.value.trim() || mealTypeSelect.value,
           mealType: mealTypeSelect.value,
@@ -890,12 +1129,19 @@
           totalMinutes: parseFloat(timeInput.value),
           ingredients: ingredientsState
             .filter(i => i.name && i.name.trim())
-            .map((ing, idx) => ({
-              id: `i${idx + 1}`,
-              name: ing.name.trim(),
-              amount: ing.amount === "" || ing.amount === null ? 0 : parseFloat(ing.amount),
-              unit: ing.unit || null,
-            })),
+            .map((ing, idx) => {
+              const obj = {
+                id: `i${idx + 1}`,
+                name: ing.name.trim(),
+                amount: ing.amount === "" || ing.amount === null ? 0 : parseFloat(ing.amount),
+                unit: ing.unit || null,
+              };
+              if (Array.isArray(ing.substitutes) && ing.substitutes.length > 0) {
+                obj.substitutes = ing.substitutes.filter(s => s && s.trim()).map(s => s.trim());
+                if (obj.substitutes.length === 0) delete obj.substitutes;
+              }
+              return obj;
+            }),
           steps: stepsState
             .filter(s => (s.title && s.title.trim()) || (s.content && s.content.trim()))
             .map((step, idx) => ({
@@ -908,6 +1154,15 @@
             })),
           notes: notesInput.value.trim(),
         };
+
+        // Include prep items only if any have content
+        const prepItems = prepState
+          .filter(p => p.content && p.content.trim())
+          .map((p, idx) => ({
+            id: `p${idx + 1}`,
+            content: p.content.trim(),
+          }));
+        if (prepItems.length > 0) recipe.prep = prepItems;
 
         // Include variants only for Drinks
         if (recipe.mealType === "Drinks" && variantsState.length > 0) {
@@ -973,7 +1228,36 @@
 
         saveBtn.disabled = true;
         saveBtn.textContent = "Saving…";
-        statusBox.appendChild(status("info", "Loading current recipes from GitHub…"));
+        statusBox.appendChild(status("info", isEdit ? "Updating on GitHub…" : "Loading current recipes from GitHub…"));
+
+        if (isEdit) {
+          // Replace the recipe in the already-loaded editJson
+          try {
+            // Re-fetch in case something changed since edit started (fresh sha)
+            const { json, sha } = await fetchRecipes();
+            const idx = json.recipes.findIndex(r => r.id === editing.id);
+            if (idx === -1) throw new Error(`Recipe "${editing.id}" no longer exists.`);
+            json.recipes[idx] = recipe;
+            statusBox.innerHTML = "";
+            statusBox.appendChild(status("info", "Committing to GitHub…"));
+            await commitRecipes(json, sha, `Update recipe: ${recipe.title}`);
+            statusBox.innerHTML = "";
+            statusBox.appendChild(status("success",
+              `<strong>✓ Updated!</strong><br>"${recipe.title}" has been updated. GitHub Pages will rebuild in ~1 minute.`
+            ));
+            clearPendingAction();
+            saveBtn.style.display = "none";
+            // Offer to go back
+            const doneBtn = el("button", { class: "btn secondary", style: "margin-top: 10px;", onClick: () => renderMain() }, "Done");
+            statusBox.parentNode.insertBefore(doneBtn, statusBox.nextSibling);
+          } catch (err) {
+            statusBox.innerHTML = "";
+            statusBox.appendChild(status("error", "Update failed: " + err.message));
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Update Recipe";
+          }
+          return;
+        }
 
         await saveRecipe(recipe, statusBox, () => {
           // Reset form after successful save
@@ -985,11 +1269,13 @@
           timeInput.value = "";
           notesInput.value = "";
           ingredientsState.length = 0;
-          ingredientsState.push({ name: "", amount: "", unit: null });
+          ingredientsState.push({ name: "", amount: "", unit: null, substitutes: [] });
           renderIngredients();
           stepsState.length = 0;
           stepsState.push({ title: "", content: "", timer: "" });
           renderSteps();
+          prepState.length = 0;
+          renderPrep();
           variantsState.length = 0;
           renderVariants();
           updateVariantsVisibility();
@@ -997,11 +1283,35 @@
 
         saveBtn.disabled = false;
         saveBtn.textContent = "Save Recipe";
-      } }, "Save Recipe");
+      } }, isEdit ? "Update Recipe" : "Save Recipe");
 
       body.appendChild(saveBtn);
       body.appendChild(statusBox);
       body.appendChild(lockLogoutRow());
+    }
+
+    // Parse URL for pending actions (edit/delete) coming from the main app
+    (function parsePendingAction() {
+      const params = new URLSearchParams(window.location.search);
+      const action = params.get("action");
+      const id = params.get("id");
+      if (action && id && (action === "edit" || action === "delete")) {
+        sessionStorage.setItem("rb_pending_action", JSON.stringify({ action, id }));
+        // Clean URL so a refresh doesn't re-trigger
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, "", newUrl);
+      }
+    })();
+
+    function getPendingAction() {
+      try {
+        const raw = sessionStorage.getItem("rb_pending_action");
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+
+    function clearPendingAction() {
+      sessionStorage.removeItem("rb_pending_action");
     }
 
     // Route to the right screen
@@ -1010,12 +1320,26 @@
     } else if (localStorage.getItem("rb_trusted_device") === "1" && !sessionStorage.getItem("rb_locked")) {
       // Trusted device — skip password, go straight to token (if missing) or main
       if (CONFIG.token) {
-        renderMain();
+        routeAfterUnlock();
       } else {
         renderTokenEntry();
       }
     } else {
       renderUnlock();
+    }
+
+    function routeAfterUnlock() {
+      const pending = getPendingAction();
+      if (pending) {
+        if (pending.action === "edit") {
+          renderEditFlow(pending.id);
+          return;
+        } else if (pending.action === "delete") {
+          renderDeleteFlow(pending.id);
+          return;
+        }
+      }
+      renderMain();
     }
   </script>
 </body>

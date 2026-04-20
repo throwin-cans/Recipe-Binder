@@ -119,7 +119,7 @@
       );
     }
 
-    function RecipeView({ recipe, onBack, cart, onCartChange }) {
+    function RecipeView({ recipe, onBack, cart, onCartChange, onEdit, onDelete }) {
       const hasVariants = Array.isArray(recipe.variants) && recipe.variants.length > 0;
       const [variantIdx, setVariantIdx] = useState(-1); // -1 = main
       const activeVariant = variantIdx >= 0 ? recipe.variants[variantIdx] : null;
@@ -129,24 +129,57 @@
         ...recipe,
         ingredients: activeVariant.ingredients && activeVariant.ingredients.length ? activeVariant.ingredients : recipe.ingredients,
         steps: activeVariant.steps && activeVariant.steps.length ? activeVariant.steps : recipe.steps,
+        prep: activeVariant.prep && activeVariant.prep.length ? activeVariant.prep : recipe.prep,
         notes: activeVariant.notes || recipe.notes,
         baseServings: typeof activeVariant.baseServings === "number" ? activeVariant.baseServings : recipe.baseServings,
       } : recipe;
 
       const [servings, setServings] = useState(activeRecipe.baseServings);
       const [done, setDone] = useState(new Set());
+      const [prepDone, setPrepDone] = useState(new Set());
+      const [showPrep, setShowPrep] = useState(false);
+      const [expandedSubs, setExpandedSubs] = useState(new Set());
       const mult = servings / activeRecipe.baseServings;
       const toggleStep = id => setDone(p => {
         const n = new Set(p);
         n.has(id) ? n.delete(id) : n.add(id);
         return n;
       });
+      const togglePrepStep = id => setPrepDone(p => {
+        const n = new Set(p);
+        n.has(id) ? n.delete(id) : n.add(id);
+        return n;
+      });
+      const toggleSubExpand = id => setExpandedSubs(p => {
+        const n = new Set(p);
+        n.has(id) ? n.delete(id) : n.add(id);
+        return n;
+      });
+
+      // Personal cooking notes — stored locally per recipe ID
+      const [personalNotes, setPersonalNotes] = useState(() => {
+        try {
+          const stored = JSON.parse(localStorage.getItem("rb_personal_notes") || "{}");
+          return stored[recipe.id] || "";
+        } catch { return ""; }
+      });
+      const savePersonalNotes = (val) => {
+        setPersonalNotes(val);
+        try {
+          const stored = JSON.parse(localStorage.getItem("rb_personal_notes") || "{}");
+          if (val.trim()) stored[recipe.id] = val; else delete stored[recipe.id];
+          localStorage.setItem("rb_personal_notes", JSON.stringify(stored));
+        } catch {}
+      };
 
       // When variant changes, reset servings to variant's base and clear step progress
       useEffect(() => {
         setServings(activeRecipe.baseServings);
         setDone(new Set());
+        setPrepDone(new Set());
       }, [variantIdx]);
+
+      const hasPrep = Array.isArray(activeRecipe.prep) && activeRecipe.prep.length > 0;
 
       const cartEntry = cart.find(c => c.recipeId === recipe.id);
       const inCart = !!cartEntry;
@@ -203,9 +236,44 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
 
       return (
         <div style={{ animation: "slideIn 0.25s ease" }}>
-          <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 16, fontFamily: "sans-serif", padding: 0 }}>
-            ← Back to Binder
-          </button>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 16 }}>
+            <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#2d5a3d", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "sans-serif", padding: 0 }}>
+              ← Back to Binder
+            </button>
+            <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(recipe)}
+                  aria-label="Edit recipe"
+                  style={{
+                    width: 34, height: 34, borderRadius: 8,
+                    border: "1.5px solid #c8e6d4", background: "white",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#2d5a3d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(recipe)}
+                  aria-label="Delete recipe"
+                  style={{
+                    width: 34, height: 34, borderRadius: 8,
+                    border: "1.5px solid #f4c1c1", background: "white",
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center"
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" stroke="#b33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
           <div style={{ background: "white", borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
             <div style={{ background: "linear-gradient(135deg, #2d5a3d 0%, #4a8c63 100%)", padding: "28px 28px 24px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
@@ -259,13 +327,86 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
               </div>
               <div style={{ marginBottom: 22 }}>
                 <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Ingredients</div>
-                {activeRecipe.ingredients.map((ing, i) => (
-                  <div key={ing.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < activeRecipe.ingredients.length - 1 ? "1px solid #edf7f1" : "none" }}>
-                    <span style={{ fontFamily: "sans-serif", fontSize: 14, color: "#333" }}>{ing.name}</span>
-                    <span style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 800, color: "#2d5a3d", marginLeft: 12, flexShrink: 0 }}>{formatAmount(ing.amount, mult)}{ing.unit ? ` ${ing.unit}` : ""}</span>
-                  </div>
-                ))}
+                {activeRecipe.ingredients.map((ing, i) => {
+                  const hasSubs = Array.isArray(ing.substitutes) && ing.substitutes.length > 0;
+                  const isExpanded = expandedSubs.has(ing.id);
+                  return (
+                    <div key={ing.id} style={{ borderBottom: i < activeRecipe.ingredients.length - 1 ? "1px solid #edf7f1" : "none" }}>
+                      <div
+                        onClick={hasSubs ? () => toggleSubExpand(ing.id) : undefined}
+                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", cursor: hasSubs ? "pointer" : "default" }}
+                      >
+                        <span style={{ fontFamily: "sans-serif", fontSize: 14, color: "#333", display: "flex", alignItems: "center", gap: 6 }}>
+                          {ing.name}
+                          {hasSubs && (
+                            <span style={{
+                              fontSize: 9, fontWeight: 800, color: "#5a8a6a",
+                              background: "#edf7f1", padding: "2px 6px", borderRadius: 10,
+                              letterSpacing: 0.5, textTransform: "uppercase"
+                            }}>{isExpanded ? "▲" : "▼"} SUBS</span>
+                          )}
+                        </span>
+                        <span style={{ fontFamily: "sans-serif", fontSize: 14, fontWeight: 800, color: "#2d5a3d", marginLeft: 12, flexShrink: 0 }}>{formatAmount(ing.amount, mult)}{ing.unit ? ` ${ing.unit}` : ""}</span>
+                      </div>
+                      {hasSubs && isExpanded && (
+                        <div style={{ padding: "2px 0 10px 0", fontFamily: "sans-serif", fontSize: 12, color: "#5a8a6a", fontStyle: "italic", lineHeight: 1.5 }}>
+                          Or: {ing.substitutes.join(", ")}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
+              {hasPrep && (
+                <div style={{ marginBottom: 22, background: "#f9fcfa", border: "1px solid #e8f5ec", borderRadius: 10, overflow: "hidden" }}>
+                  <div
+                    onClick={() => setShowPrep(v => !v)}
+                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", cursor: "pointer" }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ transform: showPrep ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
+                      <path d="M9 18l6-6-6-6" stroke="#2d5a3d" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase" }}>Mise en Place</div>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 11, color: "#789", marginLeft: "auto" }}>{activeRecipe.prep.length} item{activeRecipe.prep.length !== 1 ? "s" : ""}</div>
+                  </div>
+                  {showPrep && (
+                    <div style={{ padding: "0 16px 12px", animation: "slideDown 0.15s ease" }}>
+                      {activeRecipe.prep.map((p, i) => {
+                        const isDone = prepDone.has(p.id);
+                        return (
+                          <div
+                            key={p.id}
+                            onClick={() => togglePrepStep(p.id)}
+                            style={{
+                              display: "flex", gap: 10, padding: "8px 0",
+                              alignItems: "flex-start", cursor: "pointer",
+                              opacity: isDone ? 0.4 : 1, transition: "opacity 0.2s",
+                              borderTop: i > 0 ? "1px solid #edf7f1" : "none"
+                            }}
+                          >
+                            <div style={{
+                              width: 20, height: 20, borderRadius: 4,
+                              border: `2px solid ${isDone ? "#2d5a3d" : "#c8e6d4"}`,
+                              background: isDone ? "#2d5a3d" : "transparent",
+                              color: "white",
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              flexShrink: 0, marginTop: 1
+                            }}>
+                              {isDone && <span style={{ fontSize: 12, fontWeight: 800 }}>✓</span>}
+                            </div>
+                            <div style={{
+                              fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.55,
+                              textDecoration: isDone ? "line-through" : "none"
+                            }}>{p.content}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div style={{ borderTop: "1.5px solid #e8f5ec", marginBottom: 22 }} />
               <div style={{ marginBottom: 22 }}>
                 <div style={{ fontFamily: "sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, color: "#2d5a3d", textTransform: "uppercase", marginBottom: 12 }}>Instructions</div>
@@ -291,6 +432,26 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
                   <p style={{ fontFamily: "sans-serif", fontSize: 13, color: "#444", lineHeight: 1.7 }}>{activeRecipe.notes}</p>
                 </div>
               )}
+
+              {/* Personal Notes (local to this device) */}
+              <div style={{ background: "#fff8e1", borderLeft: "3px solid #d4a017", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#8a6d1a", textTransform: "uppercase", marginBottom: 8 }}>
+                  My Notes
+                  <span style={{ fontSize: 9, fontWeight: 500, color: "#b58e2a", marginLeft: 6, letterSpacing: 1, textTransform: "none", fontStyle: "italic" }}>(saved on this device)</span>
+                </div>
+                <textarea
+                  value={personalNotes}
+                  onChange={e => savePersonalNotes(e.target.value)}
+                  placeholder="Things to remember next time — e.g. 'used thighs, great', 'add 5 more min', 'kids loved it'…"
+                  style={{
+                    width: "100%", minHeight: 60, border: "1px solid #e8d19e",
+                    borderRadius: 6, padding: "8px 10px",
+                    fontFamily: "'Lato', sans-serif", fontSize: 13, lineHeight: 1.55,
+                    background: "white", color: "#444", resize: "vertical",
+                    outline: "none"
+                  }}
+                />
+              </div>
 
               {/* Cart section */}
               <div style={{ border: "1.5px solid #c8e6d4", borderRadius: 10, padding: "14px 16px", marginBottom: 14, background: inCart ? "#f4fbf6" : "white" }}>
@@ -348,25 +509,43 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
       );
     }
 
-    function RecipeListCard({ recipe, onClick, isFavorite, onToggleFavorite }) {
+    function RecipeListCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit }) {
       return (
         <div onClick={onClick}
           style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", transition: "transform 0.15s, box-shadow 0.15s", position: "relative" }}
         >
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
-            aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-            style={{
-              position: "absolute", top: 10, right: 10, zIndex: 2,
-              background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
-              border: "none", borderRadius: "50%", width: 32, height: 32,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer"
-            }}
-          >
-            <StarIcon filled={isFavorite} size={18} />
-          </button>
-          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 52px 18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ position: "absolute", top: 10, right: 10, zIndex: 2, display: "flex", gap: 6 }}>
+            {onEdit && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(recipe); }}
+                aria-label="Edit recipe"
+                style={{
+                  background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
+                  border: "none", borderRadius: "50%", width: 32, height: 32,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer"
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+              aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              style={{
+                background: "rgba(255,255,255,0.2)", backdropFilter: "blur(4px)",
+                border: "none", borderRadius: "50%", width: 32, height: 32,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer"
+              }}
+            >
+              <StarIcon filled={isFavorite} size={18} />
+            </button>
+          </div>
+          <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 88px 18px 22px", display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 30, lineHeight: 1 }}>{recipe.emoji}</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 9, letterSpacing: 2.5, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase", marginBottom: 3 }}>{recipe.tag}</div>
@@ -388,7 +567,7 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
       );
     }
 
-    function RecipeGridCard({ recipe, onClick, isFavorite, onToggleFavorite }) {
+    function RecipeGridCard({ recipe, onClick, isFavorite, onToggleFavorite, onEdit }) {
       return (
         <div onClick={onClick}
           style={{ background: "white", borderRadius: 14, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", cursor: "pointer", display: "flex", flexDirection: "column", position: "relative" }}
@@ -406,8 +585,26 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
           >
             <StarIcon filled={isFavorite} size={14} />
           </button>
+          {onEdit && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(recipe); }}
+              aria-label="Edit recipe"
+              style={{
+                position: "absolute", top: 6, right: 6, zIndex: 2,
+                background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)",
+                border: "none", borderRadius: "50%", width: 26, height: 26,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer"
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
           <div style={{ background: "linear-gradient(135deg, #2d5a3d, #4a8c63)", padding: "18px 10px 14px", textAlign: "center", position: "relative" }}>
-            <div style={{ position: "absolute", top: 7, right: 9, fontFamily: "sans-serif", fontSize: 10, color: "#a8d5b5", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
+            <div style={{ position: "absolute", bottom: 4, right: 6, fontFamily: "sans-serif", fontSize: 10, color: "#a8d5b5", fontWeight: 800 }}>{getTotalMinutes(recipe)}m</div>
             <div style={{ fontSize: 34, lineHeight: 1, marginBottom: 4 }}>{recipe.emoji}</div>
             <div style={{ fontSize: 8, letterSpacing: 2, color: "#a8d5b5", fontFamily: "sans-serif", fontWeight: 800, textTransform: "uppercase" }}>{recipe.tag}</div>
           </div>
@@ -664,19 +861,19 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
     // ── Cart View ──
 
     function aggregateCartIngredients(cart, recipes) {
-      // Returns a flat list of { key, recipeTitle, recipeEmoji, name, amount, unit, isSeasoning }
-      const items = [];
+      // Build raw list first
+      const raw = [];
       cart.forEach(entry => {
         const recipe = recipes.find(r => r.id === entry.recipeId);
         if (!recipe) return;
         recipe.ingredients.forEach(ing => {
           const seasoning = isSeasoning(ing.name);
           if (seasoning && !entry.includeSeasonings) return;
-          items.push({
-            key: `${recipe.id}::${ing.id}`,
+          raw.push({
             recipeId: recipe.id,
             recipeTitle: recipe.title,
             recipeEmoji: recipe.emoji,
+            ingredientId: ing.id,
             name: ing.name,
             amount: ing.amount,
             unit: ing.unit,
@@ -684,7 +881,45 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
           });
         });
       });
-      return items;
+
+      // Merge: same normalized name + same unit = add amounts; track source recipes
+      const mergedMap = new Map();
+      raw.forEach(it => {
+        // Normalize: lowercase + trim for matching
+        const nameKey = (it.name || "").toLowerCase().trim();
+        const unitKey = (it.unit || "").toLowerCase().trim();
+        const key = `${nameKey}||${unitKey}`;
+        if (mergedMap.has(key)) {
+          const existing = mergedMap.get(key);
+          existing.amount += (it.amount || 0);
+          if (!existing.sources.find(s => s.recipeId === it.recipeId)) {
+            existing.sources.push({
+              recipeId: it.recipeId,
+              recipeTitle: it.recipeTitle,
+              recipeEmoji: it.recipeEmoji,
+              ingredientId: it.ingredientId,
+            });
+          } else {
+            // same recipe, same ingredient appears twice — just reuse sources
+          }
+        } else {
+          mergedMap.set(key, {
+            key: `merged::${key}`,
+            name: it.name,
+            amount: it.amount || 0,
+            unit: it.unit,
+            isSeasoning: it.isSeasoning,
+            sources: [{
+              recipeId: it.recipeId,
+              recipeTitle: it.recipeTitle,
+              recipeEmoji: it.recipeEmoji,
+              ingredientId: it.ingredientId,
+            }],
+          });
+        }
+      });
+
+      return [...mergedMap.values()];
     }
 
     // Group items by recipe for display
@@ -701,7 +936,6 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
 
     function CartView({ cart, recipes, onBack, onCartChange, checks, onChecksChange }) {
       const items = aggregateCartIngredients(cart, recipes);
-      const grouped = groupByRecipe(items);
       const totalItems = items.length;
       const checkedCount = items.filter(it => checks.has(it.key)).length;
 
@@ -720,9 +954,6 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
 
       const removeRecipeFromCart = (recipeId) => {
         onCartChange(cart.filter(c => c.recipeId !== recipeId));
-        // Also clear checks for that recipe
-        const newChecks = new Set([...checks].filter(k => !k.startsWith(recipeId + "::")));
-        onChecksChange(newChecks);
       };
 
       const toggleSeasoningsFor = (recipeId, newValue) => {
@@ -730,16 +961,12 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
       };
 
       const printPDF = () => {
-        const lines = [];
-        grouped.forEach(g => {
-          lines.push(`<h2>${g.emoji} ${g.title}</h2>`);
-          lines.push(`<ul>`);
-          g.items.forEach(it => {
-            const amt = it.amount ? `${formatAmount(it.amount, 1)}${it.unit ? " " + it.unit : ""} ` : "";
-            lines.push(`<li><label><input type="checkbox"> ${amt}${it.name}</label></li>`);
-          });
-          lines.push(`</ul>`);
-        });
+        const itemsHtml = items.map(it => {
+          const amt = it.amount ? `${formatAmount(it.amount, 1)}${it.unit ? " " + it.unit : ""} ` : "";
+          const sources = it.sources.length > 1 ? ` <span class="src">(${it.sources.map(s => s.recipeTitle).join(", ")})</span>` : "";
+          return `<li><label><input type="checkbox"> ${amt}${it.name}${sources}</label></li>`;
+        }).join("");
+
         const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Shopping List</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;700&display=swap');
@@ -748,17 +975,17 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
   h1{font-family:'Playfair Display',serif;font-size:28px;color:#2d5a3d;margin-bottom:4px}
   .meta{color:#777;font-size:13px;margin-bottom:18px}
   hr{border:none;border-top:2px solid #2d5a3d;margin:12px 0 18px}
-  h2{font-family:'Playfair Display',serif;font-size:16px;color:#1a3d28;margin:18px 0 8px;padding-bottom:4px;border-bottom:1px solid #eee}
-  ul{list-style:none;padding:0;margin-bottom:12px}
-  li{padding:8px 0;font-size:14px;line-height:1.5}
+  ul{list-style:none;padding:0}
+  li{padding:9px 0;font-size:14px;line-height:1.5;border-bottom:1px solid #f0f0f0}
   label{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .src{font-size:11px;color:#999;font-style:italic;margin-left:6px}
   input[type=checkbox]{width:16px;height:16px;accent-color:#2d5a3d}
   @media print { body { padding: 20px; } }
 </style></head><body>
 <h1>🛒 Shopping List</h1>
 <p class="meta">${cart.length} recipe${cart.length !== 1 ? "s" : ""} · ${totalItems} item${totalItems !== 1 ? "s" : ""}</p>
 <hr>
-${lines.join("\n")}
+<ul>${itemsHtml}</ul>
 </body></html>`;
         const w = window.open("", "_blank");
         w.document.write(html);
@@ -791,69 +1018,86 @@ ${lines.join("\n")}
                 </div>
               ) : (
                 <React.Fragment>
-                  {grouped.map(g => {
-                    const entry = cart.find(c => c.recipeId === g.items[0].recipeId);
-                    const recipeSeasoningCount = (recipes.find(r => r.id === g.items[0].recipeId)?.ingredients || []).filter(i => isSeasoning(i.name)).length;
-                    return (
-                      <div key={g.items[0].recipeId} style={{ marginBottom: 20, paddingBottom: 18, borderBottom: "1px solid #edf7f1" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                          <span style={{ fontSize: 20 }}>{g.emoji}</span>
-                          <div style={{ flex: 1, fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: "#1a3d28" }}>{g.title}</div>
+                  {/* Recipes in cart — compact summary with remove + seasonings controls */}
+                  <div style={{ marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #edf7f1" }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 10 }}>Recipes in cart</div>
+                    {cart.map(entry => {
+                      const recipe = recipes.find(r => r.id === entry.recipeId);
+                      if (!recipe) return null;
+                      const seasoningCount = recipe.ingredients.filter(i => isSeasoning(i.name)).length;
+                      return (
+                        <div key={entry.recipeId} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0" }}>
+                          <span style={{ fontSize: 18 }}>{recipe.emoji}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 14, fontWeight: 700, color: "#1a3d28", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{recipe.title}</div>
+                            {seasoningCount > 0 && (
+                              <label style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2, fontSize: 11, color: "#5a8a6a", cursor: "pointer", fontFamily: "sans-serif" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={entry.includeSeasonings}
+                                  onChange={e => toggleSeasoningsFor(entry.recipeId, e.target.checked)}
+                                  style={{ width: 12, height: 12, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
+                                />
+                                Seasonings ({seasoningCount})
+                              </label>
+                            )}
+                          </div>
                           <button
-                            onClick={() => removeRecipeFromCart(g.items[0].recipeId)}
+                            onClick={() => removeRecipeFromCart(entry.recipeId)}
                             aria-label="Remove recipe from cart"
                             style={{ background: "transparent", border: "none", color: "#b33", fontSize: 18, cursor: "pointer", padding: "0 4px", lineHeight: 1 }}
                           >×</button>
                         </div>
+                      );
+                    })}
+                  </div>
 
-                        {recipeSeasoningCount > 0 && entry && (
-                          <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, marginLeft: 28, fontSize: 12, color: "#5a8a6a", cursor: "pointer", fontFamily: "sans-serif" }}>
-                            <input
-                              type="checkbox"
-                              checked={entry.includeSeasonings}
-                              onChange={e => toggleSeasoningsFor(entry.recipeId, e.target.checked)}
-                              style={{ width: 14, height: 14, accentColor: "#2d5a3d", margin: 0, cursor: "pointer" }}
-                            />
-                            Include seasonings ({recipeSeasoningCount})
-                          </label>
-                        )}
-
-                        <div style={{ paddingLeft: 28 }}>
-                          {g.items.map(it => {
-                            const isChecked = checks.has(it.key);
-                            return (
-                              <label
-                                key={it.key}
-                                style={{
-                                  display: "flex", alignItems: "center", gap: 10, padding: "7px 0",
-                                  cursor: "pointer", opacity: isChecked ? 0.4 : 1, transition: "opacity 0.15s"
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={() => toggleCheck(it.key)}
-                                  style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, cursor: "pointer", flexShrink: 0 }}
-                                />
-                                <span style={{
-                                  fontFamily: "sans-serif", fontSize: 13, color: "#333",
-                                  textDecoration: isChecked ? "line-through" : "none"
-                                }}>
-                                  {it.amount ? (
-                                    <React.Fragment>
-                                      <strong style={{ color: "#2d5a3d" }}>{formatAmount(it.amount, 1)}{it.unit ? ` ${it.unit}` : ""}</strong>
-                                      {" "}
-                                    </React.Fragment>
-                                  ) : null}
-                                  {it.name}
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {/* Shopping list — merged items */}
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a8a6a", textTransform: "uppercase", marginBottom: 10 }}>Shopping List</div>
+                    {items.map(it => {
+                      const isChecked = checks.has(it.key);
+                      const showSources = it.sources.length > 1;
+                      return (
+                        <label
+                          key={it.key}
+                          style={{
+                            display: "flex", gap: 10, padding: "10px 0",
+                            borderBottom: "1px solid #edf7f1",
+                            cursor: "pointer",
+                            opacity: isChecked ? 0.4 : 1, transition: "opacity 0.15s",
+                            alignItems: "flex-start"
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleCheck(it.key)}
+                            style={{ width: 18, height: 18, accentColor: "#2d5a3d", margin: 0, marginTop: 2, cursor: "pointer", flexShrink: 0 }}
+                          />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontFamily: "sans-serif", fontSize: 13, color: "#333", lineHeight: 1.4,
+                              textDecoration: isChecked ? "line-through" : "none"
+                            }}>
+                              {it.amount ? (
+                                <React.Fragment>
+                                  <strong style={{ color: "#2d5a3d" }}>{formatAmount(it.amount, 1)}{it.unit ? ` ${it.unit}` : ""}</strong>
+                                  {" "}
+                                </React.Fragment>
+                              ) : null}
+                              {it.name}
+                            </div>
+                            {showSources && (
+                              <div style={{ fontFamily: "sans-serif", fontSize: 10, color: "#789", marginTop: 3, fontStyle: "italic" }}>
+                                For: {it.sources.map(s => `${s.recipeEmoji} ${s.recipeTitle}`).join(" · ")}
+                              </div>
+                            )}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
 
                   <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
                     <button
@@ -913,6 +1157,17 @@ ${lines.join("\n")}
       const updateCartChecks = (newChecks) => {
         setCartChecks(newChecks);
         saveCartChecks(newChecks);
+      };
+
+      const handleEdit = (recipe) => {
+        // Redirect to admin with edit action
+        window.location.href = `admin.html?action=edit&id=${encodeURIComponent(recipe.id)}`;
+      };
+
+      const handleDelete = (recipe) => {
+        if (confirm(`Delete "${recipe.title}"? This can't be undone.`)) {
+          window.location.href = `admin.html?action=delete&id=${encodeURIComponent(recipe.id)}`;
+        }
       };
 
       const loadRecipes = (isRefresh = false) => {
@@ -1088,6 +1343,7 @@ ${lines.join("\n")}
                         onClick={() => setActive(r)}
                         isFavorite={favorites.has(r.id)}
                         onToggleFavorite={() => toggleFavorite(r.id)}
+                        onEdit={handleEdit}
                       />
                     ))}
                   </div>
@@ -1107,6 +1363,7 @@ ${lines.join("\n")}
                             onClick={() => setActive(r)}
                             isFavorite={favorites.has(r.id)}
                             onToggleFavorite={() => toggleFavorite(r.id)}
+                            onEdit={handleEdit}
                           />
                         ))}
                       </div>
@@ -1115,7 +1372,7 @@ ${lines.join("\n")}
                 )}
               </React.Fragment>
             ) : (
-              <RecipeView recipe={active} onBack={() => setActive(null)} cart={cart} onCartChange={updateCart} />
+              <RecipeView recipe={active} onBack={() => setActive(null)} cart={cart} onCartChange={updateCart} onEdit={handleEdit} onDelete={handleDelete} />
             )}
           </div>
         </div>
