@@ -1090,6 +1090,181 @@
         "name": "Classic cocktail",
         "notes": "Modern spicy twist on the margarita"
       }
+    },
+    {
+      "id": "next-level-ramen",
+      "emoji": "🍜",
+      "tag": "Dinner",
+      "mealType": "Dinner",
+      "title": "Next-Level Instant Ramen",
+      "description": "Instant ramen elevated with garlic butter, mushrooms, spinach, and a jammy soft-boiled egg — 20 minutes, restaurant vibes.",
+      "baseServings": 1,
+      "totalMinutes": 20,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "package instant ramen (Shin Ramyun, Sapporo Ichiban, or Top Ramen)",
+          "amount": 1,
+          "unit": null,
+          "substitutes": [
+            "any instant ramen — Shin for spicy, Sapporo for rich, Top Ramen for classic"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "large egg",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i3",
+          "name": "shiitake or cremini mushrooms, sliced",
+          "amount": 3,
+          "unit": "oz",
+          "substitutes": [
+            "any mushroom — enoki, oyster, or button all work"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "baby spinach",
+          "amount": 2,
+          "unit": "cup",
+          "substitutes": [
+            "napa cabbage, bok choy, or baby kale"
+          ]
+        },
+        {
+          "id": "i5",
+          "name": "garlic cloves, minced",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i6",
+          "name": "scallions, sliced thin (white and green parts separated)",
+          "amount": 2,
+          "unit": null
+        },
+        {
+          "id": "i7",
+          "name": "unsalted butter",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i8",
+          "name": "soy sauce",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i9",
+          "name": "toasted sesame oil",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i10",
+          "name": "chili oil or chili crisp (Lao Gan Ma, Momofuku)",
+          "amount": 1,
+          "unit": "tsp",
+          "substitutes": [
+            "sriracha, gochujang, or omit if you don't want heat"
+          ]
+        },
+        {
+          "id": "i11",
+          "name": "toasted sesame seeds",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i12",
+          "name": "nori sheet, cut into strips (optional)",
+          "amount": 1,
+          "unit": null
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Slice mushrooms thin"
+        },
+        {
+          "id": "p2",
+          "content": "Rinse spinach if not pre-washed"
+        },
+        {
+          "id": "p3",
+          "content": "Mince garlic"
+        },
+        {
+          "id": "p4",
+          "content": "Slice scallions — keep whites and greens separate"
+        },
+        {
+          "id": "p5",
+          "content": "Cut nori into strips if using"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Start the egg",
+          "content": "Bring a small pot of water to a rolling boil. Gently lower the egg in with a spoon and set a timer for 6 minutes 30 seconds for jammy yolks (7 min for slightly firmer). While it cooks, prep a bowl of ice water.",
+          "timer": 390
+        },
+        {
+          "id": "s2",
+          "title": "Shock the egg",
+          "content": "When the timer goes off, transfer the egg to the ice bath. Let it sit at least 3 minutes — this stops the cooking and makes peeling easier.",
+          "timer": 180
+        },
+        {
+          "id": "s3",
+          "title": "Sauté the aromatics",
+          "content": "While the egg cools, heat butter in a medium pot over medium heat. Add the garlic and white parts of the scallions. Sauté 30 seconds until fragrant but not browned.",
+          "timer": 30
+        },
+        {
+          "id": "s4",
+          "title": "Cook mushrooms",
+          "content": "Add mushrooms to the pot. Cook 3-4 minutes, stirring occasionally, until they've released their water and started to brown at the edges.",
+          "timer": 240
+        },
+        {
+          "id": "s5",
+          "title": "Build the broth",
+          "content": "Add 2 cups water (or the amount your ramen package calls for) and the seasoning packet. Bring to a boil. Add soy sauce.",
+          "timer": 120
+        },
+        {
+          "id": "s6",
+          "title": "Add noodles",
+          "content": "Drop in the noodles. Cook 3 minutes, stirring to separate them, until noodles are al dente.",
+          "timer": 180
+        },
+        {
+          "id": "s7",
+          "title": "Wilt the spinach",
+          "content": "Turn off the heat. Add the spinach and stir gently — it'll wilt in 30-60 seconds from the residual heat. Don't cook it further or it'll turn slimy.",
+          "timer": 60
+        },
+        {
+          "id": "s8",
+          "title": "Peel and halve the egg",
+          "content": "Gently crack the egg all over on the counter, then peel under cold running water starting from the wider end. Slice in half lengthwise — the yolk should be jammy and bright orange.",
+          "timer": null
+        },
+        {
+          "id": "s9",
+          "title": "Finish and bowl up",
+          "content": "Stir sesame oil into the broth. Transfer everything to a bowl. Nestle the egg halves on top. Drizzle with chili oil, scatter scallion greens, sesame seeds, and nori strips. Eat immediately.",
+          "timer": null
+        }
+      ],
+      "notes": "**The egg is the move.** 6:30 at a rolling boil gives you a barely-set white and a flowing jammy yolk. 7:00 for a slightly firmer yolk. Anything less and the white is raw; anything more and you've got a hard-boiled egg.\n\n**Don't skip shocking the egg** — the ice bath stops the carryover cooking AND makes peeling vastly easier. Start peeling from the wide end where the air pocket is.\n\n**Spinach goes in OFF heat** — residual warmth is enough to wilt it perfectly. Cooking it in the pot turns it slimy and drab green.\n\n**Don't use all the seasoning packet if you're adding soy sauce** — start with half the packet + the soy, taste, then add more packet if needed. Otherwise it'll be way too salty.\n\n**Chili crisp > chili oil.** If you can get Lao Gan Ma, Fly By Jing, or Momofuku Chili Crunch, the crispy bits and garlic take this to another level.\n\n**Upgrades for future attempts:**\n- Add a splash of rice vinegar or black vinegar at the end for brightness\n- Stir in a teaspoon of miso paste for deeper umami\n- Top with kimchi for tang and crunch\n- Add thin-sliced leftover rotisserie chicken or pork belly\n- Fry a piece of thick-cut bacon first, use the fat instead of butter\n\n**For 2 servings:** Double everything EXCEPT the water — add only 3½ cups total instead of 4, since instant ramen broth gets thin when doubled straight."
     }
   ]
 }
