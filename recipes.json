@@ -1265,6 +1265,147 @@
         }
       ],
       "notes": "**The egg is the move.** 6:30 at a rolling boil gives you a barely-set white and a flowing jammy yolk. 7:00 for a slightly firmer yolk. Anything less and the white is raw; anything more and you've got a hard-boiled egg.\n\n**Don't skip shocking the egg** — the ice bath stops the carryover cooking AND makes peeling vastly easier. Start peeling from the wide end where the air pocket is.\n\n**Spinach goes in OFF heat** — residual warmth is enough to wilt it perfectly. Cooking it in the pot turns it slimy and drab green.\n\n**Don't use all the seasoning packet if you're adding soy sauce** — start with half the packet + the soy, taste, then add more packet if needed. Otherwise it'll be way too salty.\n\n**Chili crisp > chili oil.** If you can get Lao Gan Ma, Fly By Jing, or Momofuku Chili Crunch, the crispy bits and garlic take this to another level.\n\n**Upgrades for future attempts:**\n- Add a splash of rice vinegar or black vinegar at the end for brightness\n- Stir in a teaspoon of miso paste for deeper umami\n- Top with kimchi for tang and crunch\n- Add thin-sliced leftover rotisserie chicken or pork belly\n- Fry a piece of thick-cut bacon first, use the fat instead of butter\n\n**For 2 servings:** Double everything EXCEPT the water — add only 3½ cups total instead of 4, since instant ramen broth gets thin when doubled straight."
+    },
+    {
+      "id": "ajitsuke-tamago",
+      "emoji": "🥚",
+      "tag": "Side Dish / Topping",
+      "mealType": "Sides",
+      "title": "Ajitsuke Tamago (Ramen Eggs)",
+      "description": "Traditional Japanese soy-marinated soft-boiled eggs — jammy yolks, glossy mahogany whites. The quintessential ramen topping.",
+      "baseServings": 6,
+      "totalMinutes": 25,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "large eggs, straight from the fridge",
+          "amount": 6,
+          "unit": null,
+          "substitutes": [
+            "cold eggs are critical — they prevent cracking and set the timing"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "soy sauce (Japanese — Kikkoman or similar)",
+          "amount": 0.5,
+          "unit": "cup",
+          "substitutes": [
+            "tamari for gluten-free"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "mirin",
+          "amount": 0.5,
+          "unit": "cup",
+          "substitutes": [
+            "if no mirin: ½ cup water + 2 tbsp sugar"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "sake",
+          "amount": 0.25,
+          "unit": "cup",
+          "substitutes": [
+            "dry sherry, or just more water"
+          ]
+        },
+        {
+          "id": "i5",
+          "name": "water",
+          "amount": 0.5,
+          "unit": "cup"
+        },
+        {
+          "id": "i6",
+          "name": "sugar",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i7",
+          "name": "garlic clove, smashed (optional)",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i8",
+          "name": "fresh ginger, sliced (optional)",
+          "amount": 0.5,
+          "unit": "tbsp"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Take eggs straight from fridge — do NOT let them come to room temp"
+        },
+        {
+          "id": "p2",
+          "content": "Prepare a large bowl of ice water (lots of ice, enough to fully submerge eggs)"
+        },
+        {
+          "id": "p3",
+          "content": "Smash garlic with the side of a knife if using"
+        },
+        {
+          "id": "p4",
+          "content": "Find a container just big enough to hold the eggs snugly — quart-size deli container is perfect"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Make the marinade",
+          "content": "Combine soy sauce, mirin, sake, water, sugar, garlic, and ginger in a small saucepan. Bring to a simmer over medium heat, stirring to dissolve the sugar. Simmer 2 minutes — this burns off the alcohol from the sake and mirin. Remove from heat and let cool completely to room temperature.",
+          "timer": 120
+        },
+        {
+          "id": "s2",
+          "title": "Boil water",
+          "content": "Bring a large pot of water to a rolling boil. Use enough water to fully submerge all the eggs with room to move.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Cook the eggs",
+          "content": "Using a slotted spoon or spider, gently lower the cold eggs into the boiling water one at a time. Immediately set a timer for exactly 6 minutes 30 seconds. Keep the water at a steady rolling boil (not a violent one — the eggs can crack against each other).",
+          "timer": 390
+        },
+        {
+          "id": "s4",
+          "title": "Shock in ice bath",
+          "content": "The moment the timer goes off, transfer the eggs to the ice water bath. Let them sit at least 5 minutes — this stops the cooking instantly and makes peeling much easier.",
+          "timer": 300
+        },
+        {
+          "id": "s5",
+          "title": "Peel carefully",
+          "content": "Gently crack each egg all over by tapping on the counter, then peel under a thin stream of cold running water, starting from the wider (air pocket) end. The whites at 6:30 are soft and delicate — take your time. Don't gouge the whites with your fingernails.",
+          "timer": null
+        },
+        {
+          "id": "s6",
+          "title": "Marinate",
+          "content": "Place the peeled eggs in your container. Pour the cooled marinade over them — it should fully cover the eggs. If not, weigh them down with a small plate or a folded paper towel pressed on top (the paper towel trick keeps the tops submerged). Cover and refrigerate.",
+          "timer": null
+        },
+        {
+          "id": "s7",
+          "title": "Wait",
+          "content": "Minimum marinate time: 4 hours for light flavor. Best results: 12-24 hours for deep mahogany color and seasoned whites without over-salting the yolk. Don't go past 48 hours or the whites get rubbery and too salty.",
+          "timer": null
+        },
+        {
+          "id": "s8",
+          "title": "Serve",
+          "content": "Lift eggs out of the marinade with a slotted spoon. Slice in half lengthwise with a VERY sharp knife or ideally a piece of plain thread/dental floss (clean cut, no squished yolk). Serve on top of ramen, rice bowls, or eat as a snack.",
+          "timer": null
+        }
+      ],
+      "notes": "**The marinade MUST be cool before you add the eggs.** Hot marinade will keep cooking them and ruin your jammy yolks. I usually make the marinade first thing and let it cool while I boil water.\n\n**6:30 is the magic number** at a rolling boil for large eggs straight from the fridge. If your eggs are smaller, go 6:00. If XL, go 7:00. Room temperature eggs cook faster — use cold eggs.\n\n**Peeling tip:** The membrane just under the shell is what you want to grab. Crack the whole shell by rolling gently on the counter, then peel under cold running water — the water gets between the shell and membrane and helps it release.\n\n**Why the marinade gets diluted with water:** Straight soy sauce is way too salty and would make the whites rock-hard and inedibly salty. The mirin/sake/water ratio softens it into a sweet-savory bath that penetrates slowly.\n\n**Reusing the marinade:** You can reuse it ONCE for a second batch of eggs within 3 days, but the flavor will be slightly weaker. Don't reuse more than that.\n\n**Slicing hack:** Take a 12-inch piece of unflavored dental floss or clean thread. Hold it taut, press down through the egg in one motion. Perfect clean slice, no smashed yolk.\n\n**Storage:** Keep eggs in marinade up to 4 days total (including marinating time). After that, transfer to a dry container — they'll keep 2 more days but stop absorbing flavor."
     }
   ]
 }
