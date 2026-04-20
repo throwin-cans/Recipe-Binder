@@ -784,6 +784,91 @@
           "content": "Shred the zucchini (no need to squeeze out liquid — keeps it moist)"
         }
       ]
+    },
+    {
+      "id": "mexican-mule",
+      "emoji": "🥃",
+      "tag": "Cocktail",
+      "mealType": "Drinks",
+      "title": "Mexican Mule",
+      "description": "The classic three-ingredient tequila cocktail — bright, spicy, and refreshing. A tequila twist on the Moscow Mule.",
+      "baseServings": 1,
+      "totalMinutes": 3,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "tequila (reposado, silver, or añejo)",
+          "amount": 2,
+          "unit": "oz",
+          "substitutes": [
+            "silver is brightest, reposado smoother, añejo richest — all work"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "freshly squeezed lime juice",
+          "amount": 0.75,
+          "unit": "oz"
+        },
+        {
+          "id": "i3",
+          "name": "ginger beer (spicy variety recommended)",
+          "amount": 4,
+          "unit": "oz",
+          "substitutes": [
+            "Fever-Tree or Q Mixers for dry/spicy, Reed's for sweeter"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "lime wedge for garnish",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i5",
+          "name": "fresh mint sprig for garnish (optional)",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i6",
+          "name": "ice cubes (or crushed ice)",
+          "amount": 1,
+          "unit": "cup"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Fill the mug",
+          "content": "Fill a copper mug (or rocks glass) with ice. Copper keeps the drink icy cold and is traditional for a mule.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Add tequila and lime",
+          "content": "Pour the tequila and freshly squeezed lime juice over the ice.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Top with ginger beer",
+          "content": "Slowly pour in the ginger beer. Give it a gentle stir — don't shake the fizz out.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Garnish and serve",
+          "content": "Garnish with a lime wedge and a sprig of mint if using. Serve immediately while cold and fizzy.",
+          "timer": null
+        }
+      ],
+      "notes": "Ginger beer quality matters more than anything else here — Fever-Tree and Q Mixers are dry and spicy, Reed's is sweeter. Pick based on how sweet you want the finished drink. Always use fresh lime juice; bottled has preservatives that dull the flavor. Refrigerate the ginger beer ahead of time so it doesn't melt the ice too fast.\n\n**Sweeter variation:** If your ginger beer is on the drier side and the drink tastes too tart, add ¼ oz of agave syrup before the ginger beer. Stir briefly to dissolve.\n\n**Crowded Kitchen variation:** For a brighter, more citrusy twist, shake 1½ oz tequila with ½ oz orange liqueur (Cointreau or Grand Marnier), ½ oz lime, and ½ oz agave in a cocktail shaker with ice, then pour over crushed ice and top with ginger beer. Not traditional, but delicious — adds a margarita-like brightness.\n\n**Smoky variation:** Swap ¼ oz of the tequila for mezcal.\n\n**Spicy variation:** Muddle 2-3 jalapeño slices in the mug before adding ice.",
+      "creator": {
+        "name": "Classic cocktail",
+        "notes": "Tequila variation on the 1940s Moscow Mule"
+      }
     }
   ]
 }
