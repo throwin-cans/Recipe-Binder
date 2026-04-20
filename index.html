@@ -68,32 +68,6 @@
       return r > 0 ? `${m}m ${r}s` : `${m}m`;
     }
 
-    // Irregular plural overrides for common recipe serving units
-    const PLURAL_OVERRIDES = {
-      "loaf": "loaves",
-      "half": "halves",
-      "leaf": "leaves",
-      "tomato": "tomatoes",
-      "potato": "potatoes",
-    };
-
-    function pluralize(count, singular) {
-      if (!singular) return "";
-      if (count === 1) return singular;
-      const lower = singular.toLowerCase();
-      if (PLURAL_OVERRIDES[lower]) {
-        // Preserve capitalization: only lowercase input known, so just return the override
-        return PLURAL_OVERRIDES[lower];
-      }
-      // Default: add "s" unless it already ends with "s"
-      if (lower.endsWith("s")) return singular;
-      // Handle "y" ending: party → parties
-      if (lower.endsWith("y") && !["a","e","i","o","u"].includes(lower[lower.length - 2])) {
-        return singular.slice(0, -1) + "ies";
-      }
-      return singular + "s";
-    }
-
     function getTotalMinutes(recipe) {
       if (typeof recipe.totalMinutes === "number") return recipe.totalMinutes;
       const totalSec = (recipe.steps || []).reduce((a, s) => a + (s.timer || 0), 0);
@@ -243,15 +217,18 @@
   ol{padding-left:18px} ol li{padding:7px 0;font-size:14px;line-height:1.6}
   ol li b{color:#1a3d28}
   .notes{background:#f2faf5;border-left:3px solid #2d5a3d;padding:12px 16px;margin-top:18px;font-size:13px;line-height:1.6}
+  .credit{background:#f4f1fb;border-left:3px solid #7a5ca8;padding:10px 16px;margin-top:12px;font-size:12px;color:#3e2e5a;line-height:1.5}
+  .credit a{color:#5a4387}
 </style></head><body>
 <h1>${recipe.emoji} ${recipe.title}${activeVariant ? ` — ${activeVariant.name}` : ""}</h1>
-<p class="meta">${activeRecipe.servingUnit ? "Yields" : "Servings"}: ${servings}${activeRecipe.servingUnit ? " " + pluralize(servings, activeRecipe.servingUnit) : ""} &nbsp;·&nbsp; ${recipe.tag} &nbsp;·&nbsp; ~${getTotalMinutes(recipe)} min</p>
+<p class="meta">Servings: ${servings} &nbsp;·&nbsp; ${recipe.tag} &nbsp;·&nbsp; ~${getTotalMinutes(recipe)} min</p>
 <hr>
 <h2>Ingredients</h2>
 ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><span class="amt">${formatAmount(i.amount, mult)}${i.unit ? " " + i.unit : ""}</span></div>`).join("")}
 <h2>Instructions</h2>
 <ol>${activeRecipe.steps.map(s => `<li><b>${s.title}:</b> ${s.content}${s.timer ? ` <em>(~${formatTime(s.timer)})</em>` : ""}</li>`).join("")}</ol>
 <div class="notes"><b>Tips:</b> ${activeRecipe.notes || ""}</div>
+${recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator.notes) ? `<div class="credit"><b>Recipe by:</b> ${recipe.creator.name || ""}${recipe.creator.notes ? " — " + recipe.creator.notes : ""}${recipe.creator.url ? ` (<a href="${recipe.creator.url}">${recipe.creator.url}</a>)` : ""}</div>` : ""}
 </body></html>`;
         const w = window.open("", "_blank");
         w.document.write(html);
@@ -344,12 +321,10 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", background: "#f4fbf6", borderRadius: 10, padding: "12px 16px", marginBottom: 22 }}>
-                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>{activeRecipe.servingUnit ? "Yields" : "Servings"}</span>
+                <span style={{ fontFamily: "sans-serif", fontSize: 13, fontWeight: 700, color: "#2d5a3d" }}>Servings</span>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginLeft: "auto" }}>
                   <button onClick={() => setServings(s => Math.max(1, s - 1))} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>−</button>
-                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>
-                    {servings}{activeRecipe.servingUnit ? ` ${pluralize(servings, activeRecipe.servingUnit)}` : ""}
-                  </span>
+                  <span style={{ fontFamily: "sans-serif", fontSize: 18, fontWeight: 800, color: "#2d5a3d", minWidth: 20, textAlign: "center" }}>{servings}</span>
                   <button onClick={() => setServings(s => s + 1)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1.5px solid #2d5a3d", background: "transparent", color: "#2d5a3d", fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>+</button>
                 </div>
               </div>
@@ -480,6 +455,43 @@ ${activeRecipe.ingredients.map(i => `<div class="ing"><span>${i.name}</span><spa
                   }}
                 />
               </div>
+
+              {/* Recipe Creator (optional) */}
+              {recipe.creator && (recipe.creator.name || recipe.creator.url || recipe.creator.notes) && (
+                <div style={{ background: "#f4f1fb", borderLeft: "3px solid #7a5ca8", padding: "12px 16px", borderRadius: "0 8px 8px 0", marginBottom: 22 }}>
+                  <div style={{ fontFamily: "sans-serif", fontSize: 10, fontWeight: 800, letterSpacing: 2, color: "#5a4387", textTransform: "uppercase", marginBottom: 6 }}>Recipe By</div>
+                  {recipe.creator.name && (
+                    <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 15, fontWeight: 700, color: "#3e2e5a", marginBottom: recipe.creator.notes || recipe.creator.url ? 4 : 0 }}>
+                      {recipe.creator.name}
+                    </div>
+                  )}
+                  {recipe.creator.notes && (
+                    <div style={{ fontFamily: "sans-serif", fontSize: 12, color: "#6b5990", fontStyle: "italic", lineHeight: 1.55, marginBottom: recipe.creator.url ? 6 : 0 }}>
+                      {recipe.creator.notes}
+                    </div>
+                  )}
+                  {recipe.creator.url && (
+                    <a
+                      href={recipe.creator.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: 5,
+                        fontFamily: "sans-serif", fontSize: 12, fontWeight: 700,
+                        color: "#5a4387", textDecoration: "none",
+                        padding: "4px 10px", background: "white",
+                        border: "1px solid #d8cfea", borderRadius: 6,
+                        marginTop: 2
+                      }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#5a4387" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      View source
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Cart section */}
               <div style={{ border: "1.5px solid #c8e6d4", borderRadius: 10, padding: "14px 16px", marginBottom: 14, background: inCart ? "#f4fbf6" : "white" }}>

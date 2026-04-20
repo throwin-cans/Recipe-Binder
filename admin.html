@@ -664,12 +664,16 @@
 
       const descInput = el("input", { type: "text", placeholder: "A short hook about the recipe." });
       const servingsInput = el("input", { type: "number", min: "1", placeholder: "4", value: "4" });
-      const servingUnitInput = el("input", { type: "text", placeholder: "e.g. loaf, slice, ball (optional)" });
       const timeInput = el("input", { type: "number", min: "1", placeholder: "30" });
       const notesInput = el("textarea", { placeholder: "Tips, substitutions, gotchas…" });
       notesInput.style.minHeight = "80px";
       notesInput.style.fontFamily = "'Lato', sans-serif";
       notesInput.style.fontSize = "14px";
+
+      // Recipe Creator (optional)
+      const creatorNameInput = el("input", { type: "text", placeholder: "e.g. Grandma, J. Kenji López-Alt, @jessica_in_the_kitchen" });
+      const creatorUrlInput = el("input", { type: "url", placeholder: "https://… (optional)" });
+      const creatorNotesInput = el("input", { type: "text", placeholder: "e.g. 'found on TikTok', 'my grandma', 'mom's recipe' (optional)" });
 
       // Pre-fill main fields if editing
       if (isEdit) {
@@ -679,9 +683,13 @@
         mealTypeSelect.value = editing.mealType || "Dinner";
         descInput.value = editing.description || "";
         servingsInput.value = editing.baseServings || "";
-        servingUnitInput.value = editing.servingUnit || "";
         timeInput.value = editing.totalMinutes || "";
         notesInput.value = editing.notes || "";
+        if (editing.creator) {
+          creatorNameInput.value = editing.creator.name || "";
+          creatorUrlInput.value = editing.creator.url || "";
+          creatorNotesInput.value = editing.creator.notes || "";
+        }
       }
 
       // Ingredients list
@@ -908,11 +916,6 @@
             el("div", { class: "mini-label" }, "Total Time (min)"),
             timeInput
           )
-        ),
-        el("div", { style: "margin-top: 10px;" },
-          el("div", { class: "mini-label" }, "Serving Unit (optional)"),
-          servingUnitInput,
-          el("div", { class: "help", style: "margin-top: 4px;" }, "Words like \"loaf\", \"slice\", \"cookie\", \"ball\", \"cocktail\". Leave blank for \"servings\". Auto-pluralizes.")
         )
       ));
 
@@ -935,6 +938,23 @@
       body.appendChild(el("div", { class: "group" },
         el("div", { class: "mini-label" }, "Tips / Notes"),
         notesInput
+      ));
+
+      body.appendChild(el("div", { class: "group" },
+        el("div", { class: "label" }, "Recipe Creator (optional)"),
+        el("div", { class: "help", style: "margin-bottom: 10px;" }, "Credit the person or source — shown at the end of the recipe."),
+        el("div", {},
+          el("div", { class: "mini-label" }, "Name"),
+          creatorNameInput
+        ),
+        el("div", { style: "margin-top: 10px;" },
+          el("div", { class: "mini-label" }, "Link (optional)"),
+          creatorUrlInput
+        ),
+        el("div", { style: "margin-top: 10px;" },
+          el("div", { class: "mini-label" }, "Notes (optional)"),
+          creatorNotesInput
+        )
       ));
 
       // ── Variants section (Drinks only) ──
@@ -1162,9 +1182,16 @@
           notes: notesInput.value.trim(),
         };
 
-        // Include servingUnit if set
-        const unitVal = servingUnitInput.value.trim();
-        if (unitVal) recipe.servingUnit = unitVal;
+        // Creator (optional) — include only if any field has content
+        const crName = creatorNameInput.value.trim();
+        const crUrl = creatorUrlInput.value.trim();
+        const crNotes = creatorNotesInput.value.trim();
+        if (crName || crUrl || crNotes) {
+          recipe.creator = {};
+          if (crName) recipe.creator.name = crName;
+          if (crUrl) recipe.creator.url = crUrl;
+          if (crNotes) recipe.creator.notes = crNotes;
+        }
 
         // Include prep items only if any have content
         const prepItems = prepState
@@ -1277,9 +1304,11 @@
           tagInput.value = "";
           descInput.value = "";
           servingsInput.value = "4";
-          servingUnitInput.value = "";
           timeInput.value = "";
           notesInput.value = "";
+          creatorNameInput.value = "";
+          creatorUrlInput.value = "";
+          creatorNotesInput.value = "";
           ingredientsState.length = 0;
           ingredientsState.push({ name: "", amount: "", unit: null, substitutes: [] });
           renderIngredients();
