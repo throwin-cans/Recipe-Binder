@@ -869,6 +869,91 @@
         "name": "Classic cocktail",
         "notes": "Tequila variation on the 1940s Moscow Mule"
       }
+    },
+    {
+      "id": "moscow-mule",
+      "emoji": "🥃",
+      "tag": "Cocktail",
+      "mealType": "Drinks",
+      "title": "Moscow Mule",
+      "description": "The 1940s original — vodka, lime, and ginger beer in a frosty copper mug. Crisp, spicy, and endlessly refreshing.",
+      "baseServings": 1,
+      "totalMinutes": 3,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "vodka",
+          "amount": 2,
+          "unit": "oz",
+          "substitutes": [
+            "any quality vodka — Tito's, Grey Goose, Ketel One all work"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "freshly squeezed lime juice",
+          "amount": 0.75,
+          "unit": "oz"
+        },
+        {
+          "id": "i3",
+          "name": "ginger beer (spicy variety recommended)",
+          "amount": 4,
+          "unit": "oz",
+          "substitutes": [
+            "Fever-Tree or Q Mixers for dry/spicy, Reed's for sweeter"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "lime wedge for garnish",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i5",
+          "name": "fresh mint sprig for garnish (optional)",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i6",
+          "name": "ice cubes (or crushed ice)",
+          "amount": 1,
+          "unit": "cup"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Fill the mug",
+          "content": "Fill a copper mug (or rocks glass) with ice. Copper keeps the drink icy cold — it's traditional for a mule and worth using if you have one.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Add vodka and lime",
+          "content": "Pour the vodka and freshly squeezed lime juice over the ice.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Top with ginger beer",
+          "content": "Slowly pour in the ginger beer. Give it a gentle stir — don't shake out the fizz.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Garnish and serve",
+          "content": "Garnish with a lime wedge and a sprig of mint if using. Serve immediately while cold and fizzy.",
+          "timer": null
+        }
+      ],
+      "notes": "Ginger beer quality makes or breaks this drink. Fever-Tree and Q Mixers are dry and spicy, Reed's is sweeter — pick based on how sweet you want the finished cocktail. Always use fresh lime juice; bottled has preservatives that dull the flavor. Refrigerate your ginger beer ahead of time so it doesn't melt the ice too fast.\n\n**The copper mug isn't just for looks:** copper responds quickly to cold, keeping the drink frostier longer. Some bartenders also claim it enhances the aroma.\n\n**History:** Invented in 1941 at the Chatham Hotel in NYC by John G. Martin (Smirnoff vodka) and Jack Morgan (Cock 'n' Bull ginger beer), reportedly to move unsold inventory. Served in copper mugs from the start as a marketing gimmick — and it stuck.\n\n**Sweeter variation:** If your ginger beer is dry and the drink tastes too tart, add ¼ oz of simple syrup before the ginger beer.\n\n**Kentucky Mule:** Swap vodka for bourbon.\n\n**Gin Gin Mule:** Swap vodka for gin and muddle a few mint leaves in the glass first.\n\n**Spicy variation:** Muddle 2-3 slices of cucumber or jalapeño in the mug before adding ice.",
+      "creator": {
+        "name": "Classic cocktail",
+        "notes": "Invented 1941, Chatham Hotel, NYC"
+      }
     }
   ]
 }
