@@ -1406,6 +1406,164 @@
         }
       ],
       "notes": "**The marinade MUST be cool before you add the eggs.** Hot marinade will keep cooking them and ruin your jammy yolks. I usually make the marinade first thing and let it cool while I boil water.\n\n**6:30 is the magic number** at a rolling boil for large eggs straight from the fridge. If your eggs are smaller, go 6:00. If XL, go 7:00. Room temperature eggs cook faster — use cold eggs.\n\n**Peeling tip:** The membrane just under the shell is what you want to grab. Crack the whole shell by rolling gently on the counter, then peel under cold running water — the water gets between the shell and membrane and helps it release.\n\n**Why the marinade gets diluted with water:** Straight soy sauce is way too salty and would make the whites rock-hard and inedibly salty. The mirin/sake/water ratio softens it into a sweet-savory bath that penetrates slowly.\n\n**Reusing the marinade:** You can reuse it ONCE for a second batch of eggs within 3 days, but the flavor will be slightly weaker. Don't reuse more than that.\n\n**Slicing hack:** Take a 12-inch piece of unflavored dental floss or clean thread. Hold it taut, press down through the egg in one motion. Perfect clean slice, no smashed yolk.\n\n**Storage:** Keep eggs in marinade up to 4 days total (including marinating time). After that, transfer to a dry container — they'll keep 2 more days but stop absorbing flavor."
+    },
+    {
+      "id": "smoky-ground-beef-annies-mac",
+      "emoji": "🥩",
+      "tag": "Dinner",
+      "mealType": "Dinner",
+      "title": "Smoky Ground Beef for Annie's Mac",
+      "description": "Deeply browned, smoky-savory ground beef that turns a box of Annie's mac into a full meal. 15 minutes, one skillet.",
+      "baseServings": 2,
+      "totalMinutes": 20,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "ground beef (80/20)",
+          "amount": 1,
+          "unit": "lb",
+          "substitutes": [
+            "ground turkey, ground chicken, or plant-based crumbles — will need a touch more oil"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "small yellow onion, diced",
+          "amount": 1,
+          "unit": null,
+          "substitutes": [
+            "shallot, or 2 tbsp dried minced onion"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "garlic cloves, minced",
+          "amount": 3,
+          "unit": null
+        },
+        {
+          "id": "i4",
+          "name": "smoked paprika",
+          "amount": 1,
+          "unit": "tsp"
+        },
+        {
+          "id": "i5",
+          "name": "Worcestershire sauce",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i6",
+          "name": "tomato paste",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "1 tbsp ketchup in a pinch"
+          ]
+        },
+        {
+          "id": "i7",
+          "name": "kosher salt",
+          "amount": 0.75,
+          "unit": "tsp"
+        },
+        {
+          "id": "i8",
+          "name": "black pepper",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i9",
+          "name": "garlic powder",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i10",
+          "name": "onion powder",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i11",
+          "name": "neutral oil (avocado or canola)",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i12",
+          "name": "box of Annie's Mac and Cheese",
+          "amount": 1,
+          "unit": null
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Dice the onion small (about ¼-inch pieces)"
+        },
+        {
+          "id": "p2",
+          "content": "Mince the garlic"
+        },
+        {
+          "id": "p3",
+          "content": "Measure out the spices into a small bowl so you can dump them in at once"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Start the mac",
+          "content": "Fill a pot with water for the mac and cheese. Start it heating over high so it's boiling by the time the beef is done. Follow the box directions when it boils.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Heat the skillet",
+          "content": "Heat a large skillet (cast iron or stainless steel works best) over medium-high heat for 2 minutes. Add the oil and let it shimmer.",
+          "timer": 120
+        },
+        {
+          "id": "s3",
+          "title": "Brown the beef — don't touch it",
+          "content": "Add the ground beef in one layer, breaking it into large chunks. Press it down and LET IT SIT for 3-4 minutes without stirring. This builds the deep brown crust. Resist the urge to stir.",
+          "timer": 240
+        },
+        {
+          "id": "s4",
+          "title": "Break it up",
+          "content": "Once the bottom is deeply browned, break the beef into smaller pieces with a wooden spoon. Cook another 2-3 minutes, stirring occasionally, until no pink remains.",
+          "timer": 180
+        },
+        {
+          "id": "s5",
+          "title": "Add onion",
+          "content": "Add the diced onion. Cook 3-4 minutes, stirring, until softened and lightly translucent. The onion picks up all the brown bits from the pan.",
+          "timer": 240
+        },
+        {
+          "id": "s6",
+          "title": "Bloom the aromatics",
+          "content": "Push the beef to one side of the pan. Add the garlic and tomato paste to the empty side. Cook 30 seconds, stirring the paste until it darkens slightly — this deepens the flavor dramatically. Then stir everything together.",
+          "timer": 30
+        },
+        {
+          "id": "s7",
+          "title": "Season",
+          "content": "Add smoked paprika, garlic powder, onion powder, salt, pepper, and Worcestershire. Stir to coat everything evenly. Cook 1 more minute to let the spices wake up.",
+          "timer": 60
+        },
+        {
+          "id": "s8",
+          "title": "Finish the mac",
+          "content": "The mac should be ready around now. Drain, add butter and milk per the box, stir in the cheese packet. Top each bowl with a generous scoop of the beef. Eat immediately.",
+          "timer": null
+        }
+      ],
+      "notes": "**Don't drain the fat.** 80/20 beef will render some, but it carries all the flavor. Tilt the pan if there's truly too much, but you usually want it for mixing into the mac.\n\n**The no-stir browning step is the whole recipe.** Ground beef that's been stirred constantly turns gray and steams in its own juices. Letting it sit undisturbed creates the dark, flavorful crust (the Maillard reaction) that makes this taste like more than \"browned meat.\"\n\n**Bloom the tomato paste.** The 30 seconds of cooking the paste in its own spot transforms it from raw-tasting to deep and savory. This is the single biggest flavor upgrade in the recipe.\n\n**Smoked paprika > regular paprika.** They're not interchangeable here. If you only have regular, the dish will be fine but missing the smoky backbone.\n\n**Leftovers:** The beef keeps for 4 days in the fridge and reheats beautifully. Great on baked potatoes, tacos, or rice bowls.\n\n**Upgrades:**\n- Stir a splash of heavy cream or sour cream into the beef at the end for a Hamburger Helper vibe\n- Add ½ cup of frozen peas with the spices for color and sweetness\n- Sub half the beef for a can of drained black beans for a tex-mex spin\n- Top with pickled jalapeños or a drizzle of hot sauce"
     }
   ]
 }
