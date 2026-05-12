@@ -1715,6 +1715,179 @@
         }
       ],
       "notes": "**Approximate macros per serving:** ~750 calories, 45g protein, 80g carbs, 28g fat, 15g fiber. Macros will shift based on protein scoop size (Naked Pea is roughly 27g protein per 33g scoop) and peanut butter brand.\n\n**The protein-powder-clumping problem is real.** Pea protein in particular tends to clump if you add it to oats first and then pour liquid over the top. Always whisk it into the oat milk before adding the dry ingredients. A small whisk or fork works fine; no blender needed.\n\n**Pea protein has a slightly earthy, beany flavor** even when labeled unflavored. The peanut butter, banana, vanilla, cinnamon, and maple syrup in this recipe are specifically chosen to mask that. Cocoa powder (1 tablespoon) or a tablespoon of instant coffee also work well if you want to push it further.\n\n**For more calories (bulking aggressively):** Increase peanut butter to 3 tablespoons, swap oat milk for whole milk, and add 2 tablespoons of granola on top. This pushes the total closer to 950 calories with the protein staying around 48g.\n\n**For more protein without more calories:** Add 1 tablespoon of hemp hearts (adds ~3g protein, 55 calories) or substitute Greek yogurt for half the oat milk (adds ~10g protein for similar calories).\n\n**Texture note:** Pea protein absorbs liquid more than whey, so these oats will be thicker than a typical recipe by morning. The extra splash of oat milk before eating is usually necessary — don't skip it.\n\n**Meal prep:** This recipe scales well. Make 3-5 jars at once on Sunday for the week. They keep 5 days in the fridge. Add banana and toppings the morning of, not at prep time — banana browns and walnuts go soft if added too early.\n\n**Why these specific add-ins:** Chia and flax thicken the oats while adding fiber and omega-3s. Walnuts contribute healthy fats and a textural contrast. The pinch of salt amplifies the sweetness and rounds out the pea protein's flavor."
+    },
+    {
+      "id": "strawberry-naked-pea-overnight-oats",
+      "emoji": "🍓",
+      "tag": "Breakfast / Meal Prep",
+      "mealType": "Breakfast",
+      "title": "Strawberry Lean Mass Overnight Oats",
+      "description": "Bright, creamy strawberry overnight oats built around Naked Pea protein. Roughly 720 calories and 44g protein per jar, designed for lean mass gain.",
+      "baseServings": 1,
+      "totalMinutes": 5,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "rolled oats (old-fashioned, not quick or steel-cut)",
+          "amount": 0.5,
+          "unit": "cup",
+          "substitutes": [
+            "gluten-free rolled oats work identically"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "oat milk (unsweetened or original)",
+          "amount": 0.75,
+          "unit": "cup",
+          "substitutes": [
+            "whole milk for more calories, almond milk for fewer"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "Naked Pea unflavored protein powder",
+          "amount": 1,
+          "unit": null,
+          "substitutes": [
+            "any unflavored or vanilla protein powder"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "plain Greek yogurt (full-fat)",
+          "amount": 0.25,
+          "unit": "cup",
+          "substitutes": [
+            "skyr, or additional oat milk if dairy-free"
+          ]
+        },
+        {
+          "id": "i5",
+          "name": "almond butter",
+          "amount": 2,
+          "unit": "tbsp",
+          "substitutes": [
+            "cashew butter, sunflower seed butter, or peanut butter"
+          ]
+        },
+        {
+          "id": "i6",
+          "name": "fresh strawberries, hulled and diced (for mixing in)",
+          "amount": 0.5,
+          "unit": "cup",
+          "substitutes": [
+            "frozen strawberries, thawed and drained"
+          ]
+        },
+        {
+          "id": "i7",
+          "name": "fresh strawberries, sliced (for topping)",
+          "amount": 0.25,
+          "unit": "cup"
+        },
+        {
+          "id": "i8",
+          "name": "chia seeds",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i9",
+          "name": "ground flaxseed",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "hemp hearts"
+          ]
+        },
+        {
+          "id": "i10",
+          "name": "maple syrup or honey",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "date syrup, or omit for lower sugar"
+          ]
+        },
+        {
+          "id": "i11",
+          "name": "vanilla extract",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i12",
+          "name": "lemon zest (optional, brightens the strawberry flavor)",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i13",
+          "name": "pinch of salt",
+          "amount": 1,
+          "unit": "pinch"
+        },
+        {
+          "id": "i14",
+          "name": "sliced almonds (topping)",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i15",
+          "name": "white chocolate chips (topping, optional)",
+          "amount": 1,
+          "unit": "tbsp"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Have a wide-mouth pint jar or container with a tight-fitting lid ready"
+        },
+        {
+          "id": "p2",
+          "content": "Hull and dice the strawberries — ½ cup goes in the jar, ¼ cup is reserved for topping"
+        },
+        {
+          "id": "p3",
+          "content": "Measure protein powder first so you can whisk it into the liquid before adding oats — prevents clumping"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Whisk the wet ingredients",
+          "content": "In the jar (or a small bowl), whisk together oat milk and protein powder until fully dissolved with no clumps. Add Greek yogurt, almond butter, maple syrup, vanilla, lemon zest, and salt. Whisk until smooth and creamy.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Add the dry ingredients",
+          "content": "Stir in rolled oats, chia seeds, and ground flaxseed. Mix until everything is evenly coated and submerged in liquid.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Fold in strawberries",
+          "content": "Gently fold in the diced strawberries. They will release some juice overnight and lightly tint the oats pink, which is part of the charm.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Refrigerate",
+          "content": "Seal the jar tightly and refrigerate for at least 6 hours, ideally overnight. The oats need time to absorb the liquid and soften.",
+          "timer": null
+        },
+        {
+          "id": "s5",
+          "title": "Top and serve",
+          "content": "In the morning, stir well. Top with sliced fresh strawberries, sliced almonds, and white chocolate chips if using. Add an additional splash of oat milk if the texture is thicker than you prefer.",
+          "timer": null
+        }
+      ],
+      "notes": "**Approximate macros per serving:** ~720 calories, 44g protein, 75g carbs, 26g fat, 14g fiber. Macros will shift based on your specific protein scoop size, almond butter brand, and yogurt fat content.\n\n**Greek yogurt is doing a lot of work here.** It adds about 5g of protein, a creamy texture that pea protein on its own lacks, and a mild tanginess that pairs beautifully with strawberries. Full-fat is recommended for calories and mouthfeel; nonfat works if you want to cut calories at the expense of texture.\n\n**Strawberries and pea protein are a strong pairing.** Pea protein's natural earthiness is balanced by the bright acidity of strawberries — more so than with neutral toppings like banana or vanilla alone. The lemon zest amplifies this and is worth including if you have a lemon on hand.\n\n**Almond butter rather than peanut butter** is a deliberate choice here. Peanut butter's flavor dominates strawberry; almond butter is milder and lets the fruit lead. If you only have peanut butter, the recipe still works but tastes more like a PB&J than a strawberries-and-cream profile.\n\n**On using frozen strawberries:** They work, but thaw them in a strainer first and discard the liquid. Otherwise the oats become watery and pink-stained beyond what you probably want.\n\n**For more calories (bulking aggressively):** Increase almond butter to 3 tablespoons, swap oat milk for whole milk, and add 2 tablespoons of granola on top. This pushes the total to roughly 920 calories with protein around 47g.\n\n**For more protein without more calories:** Increase Greek yogurt to ½ cup and reduce oat milk to ½ cup. This adds about 6g of protein for minimal calorie change.\n\n**Meal prep:** This recipe scales well, but strawberries are the limiting factor. They keep their texture in the oats for about 3 days before getting mushy. If prepping for a full week, leave the strawberries out and add them fresh each morning along with the toppings.\n\n**Texture note:** Pea protein absorbs liquid more than whey, and the Greek yogurt adds further thickening, so this version is on the thicker side by morning. A 1-2 tablespoon splash of oat milk before eating is usually necessary."
     }
   ]
 }
