@@ -1564,6 +1564,157 @@
         }
       ],
       "notes": "**Don't drain the fat.** 80/20 beef will render some, but it carries all the flavor. Tilt the pan if there's truly too much, but you usually want it for mixing into the mac.\n\n**The no-stir browning step is the whole recipe.** Ground beef that's been stirred constantly turns gray and steams in its own juices. Letting it sit undisturbed creates the dark, flavorful crust (the Maillard reaction) that makes this taste like more than \"browned meat.\"\n\n**Bloom the tomato paste.** The 30 seconds of cooking the paste in its own spot transforms it from raw-tasting to deep and savory. This is the single biggest flavor upgrade in the recipe.\n\n**Smoked paprika > regular paprika.** They're not interchangeable here. If you only have regular, the dish will be fine but missing the smoky backbone.\n\n**Leftovers:** The beef keeps for 4 days in the fridge and reheats beautifully. Great on baked potatoes, tacos, or rice bowls.\n\n**Upgrades:**\n- Stir a splash of heavy cream or sour cream into the beef at the end for a Hamburger Helper vibe\n- Add ½ cup of frozen peas with the spices for color and sweetness\n- Sub half the beef for a can of drained black beans for a tex-mex spin\n- Top with pickled jalapeños or a drizzle of hot sauce"
+    },
+    {
+      "id": "naked-pea-overnight-oats",
+      "emoji": "🥣",
+      "tag": "Breakfast / Meal Prep",
+      "mealType": "Breakfast",
+      "title": "Lean Mass Overnight Oats",
+      "description": "High-calorie, high-protein overnight oats built around Naked Pea protein. Roughly 750 calories and 45g protein per jar, designed for lean mass gain.",
+      "baseServings": 1,
+      "totalMinutes": 5,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "rolled oats (old-fashioned, not quick or steel-cut)",
+          "amount": 0.5,
+          "unit": "cup",
+          "substitutes": [
+            "gluten-free rolled oats work identically"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "oat milk (unsweetened or original)",
+          "amount": 0.75,
+          "unit": "cup",
+          "substitutes": [
+            "whole milk for more calories, almond milk for fewer"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "Naked Pea unflavored protein powder",
+          "amount": 1,
+          "unit": null,
+          "substitutes": [
+            "any unflavored protein powder — whey or casein will be smoother textured"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "natural peanut butter (creamy)",
+          "amount": 2,
+          "unit": "tbsp",
+          "substitutes": [
+            "almond butter, cashew butter, or PB powder mixed with water if cutting fat"
+          ]
+        },
+        {
+          "id": "i5",
+          "name": "ripe banana, sliced",
+          "amount": 1,
+          "unit": null
+        },
+        {
+          "id": "i6",
+          "name": "chia seeds",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i7",
+          "name": "ground flaxseed",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "hemp hearts for similar protein boost"
+          ]
+        },
+        {
+          "id": "i8",
+          "name": "maple syrup or honey",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "date syrup, or omit for lower sugar"
+          ]
+        },
+        {
+          "id": "i9",
+          "name": "vanilla extract",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i10",
+          "name": "ground cinnamon",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i11",
+          "name": "pinch of salt",
+          "amount": 1,
+          "unit": "pinch"
+        },
+        {
+          "id": "i12",
+          "name": "chopped walnuts or pecans (topping)",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i13",
+          "name": "dark chocolate chips (topping, optional)",
+          "amount": 1,
+          "unit": "tbsp"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Have a wide-mouth pint jar or container with a tight-fitting lid ready"
+        },
+        {
+          "id": "p2",
+          "content": "Measure protein powder first so you can whisk it into the liquid before adding oats — prevents clumping"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Whisk the wet ingredients",
+          "content": "In the jar (or a small bowl), whisk together oat milk and protein powder until fully dissolved with no clumps. Add peanut butter, maple syrup, vanilla, cinnamon, and salt. Whisk until smooth.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Add the dry ingredients",
+          "content": "Stir in rolled oats, chia seeds, and ground flaxseed. Mix until everything is evenly coated and submerged in liquid.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Add banana",
+          "content": "Slice the banana and gently fold half of it into the mixture, reserving the other half for topping in the morning. Adding banana now lets it sweeten the oats overnight.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Refrigerate",
+          "content": "Seal the jar tightly and refrigerate for at least 6 hours, ideally overnight. The oats need time to absorb the liquid and soften.",
+          "timer": null
+        },
+        {
+          "id": "s5",
+          "title": "Top and serve",
+          "content": "In the morning, stir well. Top with remaining banana slices, chopped walnuts, and chocolate chips if using. Add an additional splash of oat milk if it's thicker than you prefer.",
+          "timer": null
+        }
+      ],
+      "notes": "**Approximate macros per serving:** ~750 calories, 45g protein, 80g carbs, 28g fat, 15g fiber. Macros will shift based on protein scoop size (Naked Pea is roughly 27g protein per 33g scoop) and peanut butter brand.\n\n**The protein-powder-clumping problem is real.** Pea protein in particular tends to clump if you add it to oats first and then pour liquid over the top. Always whisk it into the oat milk before adding the dry ingredients. A small whisk or fork works fine; no blender needed.\n\n**Pea protein has a slightly earthy, beany flavor** even when labeled unflavored. The peanut butter, banana, vanilla, cinnamon, and maple syrup in this recipe are specifically chosen to mask that. Cocoa powder (1 tablespoon) or a tablespoon of instant coffee also work well if you want to push it further.\n\n**For more calories (bulking aggressively):** Increase peanut butter to 3 tablespoons, swap oat milk for whole milk, and add 2 tablespoons of granola on top. This pushes the total closer to 950 calories with the protein staying around 48g.\n\n**For more protein without more calories:** Add 1 tablespoon of hemp hearts (adds ~3g protein, 55 calories) or substitute Greek yogurt for half the oat milk (adds ~10g protein for similar calories).\n\n**Texture note:** Pea protein absorbs liquid more than whey, so these oats will be thicker than a typical recipe by morning. The extra splash of oat milk before eating is usually necessary — don't skip it.\n\n**Meal prep:** This recipe scales well. Make 3-5 jars at once on Sunday for the week. They keep 5 days in the fridge. Add banana and toppings the morning of, not at prep time — banana browns and walnuts go soft if added too early.\n\n**Why these specific add-ins:** Chia and flax thicken the oats while adding fiber and omega-3s. Walnuts contribute healthy fats and a textural contrast. The pinch of salt amplifies the sweetness and rounds out the pea protein's flavor."
     }
   ]
 }
