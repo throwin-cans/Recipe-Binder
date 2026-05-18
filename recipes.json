@@ -1737,6 +1737,159 @@
         }
       ],
       "notes": "**Approximate macros per serving:** ~720 calories, 44g protein, 75g carbs, 26g fat, 14g fiber. Macros will shift based on your specific protein scoop size, almond butter brand, and yogurt fat content.\n\n**Greek yogurt is doing a lot of work here.** It adds about 5g of protein, a creamy texture that pea protein on its own lacks, and a mild tanginess that pairs beautifully with strawberries. Full-fat is recommended for calories and mouthfeel; nonfat works if you want to cut calories at the expense of texture.\n\n**Strawberries and pea protein are a strong pairing.** Pea protein's natural earthiness is balanced by the bright acidity of strawberries — more so than with neutral toppings like banana or vanilla alone. The lemon zest amplifies this and is worth including if you have a lemon on hand.\n\n**Almond butter rather than peanut butter** is a deliberate choice here. Peanut butter's flavor dominates strawberry; almond butter is milder and lets the fruit lead. If you only have peanut butter, the recipe still works but tastes more like a PB&J than a strawberries-and-cream profile.\n\n**On using frozen strawberries:** They work, but thaw them in a strainer first and discard the liquid. Otherwise the oats become watery and pink-stained beyond what you probably want.\n\n**For more calories (bulking aggressively):** Increase almond butter to 3 tablespoons, swap oat milk for whole milk, and add 2 tablespoons of granola on top. This pushes the total to roughly 920 calories with protein around 47g.\n\n**For more protein without more calories:** Increase Greek yogurt to ½ cup and reduce oat milk to ½ cup. This adds about 6g of protein for minimal calorie change.\n\n**Meal prep:** This recipe scales well, but strawberries are the limiting factor. They keep their texture in the oats for about 3 days before getting mushy. If prepping for a full week, leave the strawberries out and add them fresh each morning along with the toppings.\n\n**Texture note:** Pea protein absorbs liquid more than whey, and the Greek yogurt adds further thickening, so this version is on the thicker side by morning. A 1-2 tablespoon splash of oat milk before eating is usually necessary."
+    },
+    {
+      "id": "naked-pea-overnight-oats",
+      "emoji": "🥣",
+      "tag": "Breakfast / Meal Prep",
+      "mealType": "Breakfast",
+      "title": "Lean Mass Overnight Oats",
+      "description": "High-protein overnight oats built around Naked Pea protein. Roughly 800 calories and 45g protein per jar.",
+      "baseServings": 1,
+      "totalMinutes": 5,
+      "ingredients": [
+        {
+          "id": "i1",
+          "name": "rolled oats (old-fashioned, not quick or steel-cut)",
+          "amount": 0.333,
+          "unit": "cup",
+          "substitutes": [
+            "gluten-free rolled oats work identically"
+          ]
+        },
+        {
+          "id": "i2",
+          "name": "oat milk (unsweetened or original)",
+          "amount": 0.667,
+          "unit": "cup",
+          "substitutes": [
+            "whole milk for more calories, almond milk for fewer"
+          ]
+        },
+        {
+          "id": "i3",
+          "name": "Naked Pea unflavored protein powder (1 scoop)",
+          "amount": 1,
+          "unit": null,
+          "substitutes": [
+            "any unflavored protein powder"
+          ]
+        },
+        {
+          "id": "i4",
+          "name": "natural peanut butter (creamy)",
+          "amount": 1.5,
+          "unit": "tbsp",
+          "substitutes": [
+            "almond butter, cashew butter, or PB powder mixed with water if cutting fat"
+          ]
+        },
+        {
+          "id": "i5",
+          "name": "ripe banana (½ medium), sliced",
+          "amount": 0.5,
+          "unit": null
+        },
+        {
+          "id": "i6",
+          "name": "chia seeds",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i7",
+          "name": "ground flaxseed",
+          "amount": 1,
+          "unit": "tbsp",
+          "substitutes": [
+            "hemp hearts for similar protein boost"
+          ]
+        },
+        {
+          "id": "i8",
+          "name": "maple syrup or honey",
+          "amount": 2,
+          "unit": "tsp",
+          "substitutes": [
+            "date syrup, or omit for lower sugar"
+          ]
+        },
+        {
+          "id": "i9",
+          "name": "vanilla extract",
+          "amount": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "id": "i10",
+          "name": "ground cinnamon",
+          "amount": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "id": "i11",
+          "name": "pinch of salt",
+          "amount": 1,
+          "unit": "pinch"
+        },
+        {
+          "id": "i12",
+          "name": "chopped walnuts or pecans (for topping)",
+          "amount": 1,
+          "unit": "tbsp"
+        },
+        {
+          "id": "i13",
+          "name": "dark chocolate chips (for topping)",
+          "amount": 1,
+          "unit": "tbsp"
+        }
+      ],
+      "prep": [
+        {
+          "id": "p1",
+          "content": "Measure protein powder first so you can whisk it into the liquid before adding oats — prevents clumping"
+        }
+      ],
+      "steps": [
+        {
+          "id": "s1",
+          "title": "Whisk the wet ingredients",
+          "content": "In the jar (or a small bowl), whisk together oat milk and protein powder until fully dissolved with no clumps. Add peanut butter, maple syrup, vanilla, cinnamon, and salt. Whisk until smooth.",
+          "timer": null
+        },
+        {
+          "id": "s2",
+          "title": "Add the dry ingredients",
+          "content": "Stir in rolled oats, chia seeds, and ground flaxseed. Mix until everything is evenly coated and submerged in liquid.",
+          "timer": null
+        },
+        {
+          "id": "s3",
+          "title": "Add banana",
+          "content": "Slice the half banana and fold it into the mixture. The banana sweetens the oats as they sit overnight.",
+          "timer": null
+        },
+        {
+          "id": "s4",
+          "title": "Set aside the toppings",
+          "content": "Place the walnuts and chocolate chips in your topping cup (if your jar has one) or set aside in a small container for morning use. Don't mix them into the oats.",
+          "timer": null
+        },
+        {
+          "id": "s5",
+          "title": "Seal and refrigerate",
+          "content": "Seal the jar tightly. Refrigerate for at least 6 hours, ideally overnight.",
+          "timer": null
+        },
+        {
+          "id": "s6",
+          "title": "Top and serve",
+          "content": "In the morning, add the walnuts and chocolate chips on top of the oats and stir. Add a small splash of oat milk if the mixture is thicker than you prefer.",
+          "timer": null
+        }
+      ],
+      "notes": "**Approximate macros per serving (1 scoop Naked Pea):** ~800 calories, 45g protein, 85g carbs, 37g fat.\n\n**Approximate macros per serving (2 scoops Naked Pea):** ~860 calories, 58g protein, 86g carbs, 37g fat. Use 2 scoops for higher protein intake — that's Naked Pea's labeled serving size.\n\n**Jar fit:** This recipe yields about 13oz of mixture. A 16oz jar gives you room at the top for a topping cup or topping space.\n\n**The protein-powder-clumping problem is real.** Pea protein clumps if you add it to oats first and then pour liquid over the top. Always whisk it into the oat milk before adding the dry ingredients.\n\n**Pea protein has a slightly earthy, beany flavor** even when labeled unflavored. The peanut butter, banana, vanilla, cinnamon, and maple syrup are specifically chosen to mask that. Cocoa powder (1 tablespoon) or a teaspoon of instant coffee also work well if you want a different flavor profile.\n\n**Meal prep:** Make 3-5 jars at once on Sunday for the week. They keep 5 days in the fridge if you mix the banana in at prep. For longer storage (up to 5 days), leave the banana out and add fresh banana slices each morning instead of mixing them in.\n\n**Texture note:** Pea protein absorbs more liquid than whey. A splash of oat milk in the morning is usually needed."
     }
   ]
 }
